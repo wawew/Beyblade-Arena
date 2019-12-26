@@ -1,61 +1,72 @@
 let canvas = document.getElementById("myCanvas");
 let ctx = canvas.getContext("2d");
-// let ballRadius = 10;
 let x = canvas.width/2;
 let y = canvas.height-30;
 let dx = 2;
 let dy = -2;
 
-// let ball(radius, x, y, dx, dy) {
-//     this.radius = radius;
-//     this.x = x;
-//     this.y = y;
-//     this.dx = dx;
-//     this.dy = dy;
-// }
-
-let ball = {
-    radius: 10,
-    x: this.radius,
-    y: this.radius,
-    dx: 2,
-    dy: 2,
-    setPosition: (x,y) => {
-        this.x = x;
-        this.y = y;
-    },
-    setSpeed: (dx, dy) => {
+class Ball {
+    constructor(name="player", radius, initX, initY, initDx, initDy) {
+        this.name = name;
+        this.radius = radius;
+        this.x = initX;
+        this.y = initY;
+        this.dx = initDx;
+        this.dy = initDy;
+    }
+    setSpeed(dx, dy) {
         this.dx = dx;
         this.dy = dy;
     }
+    setPosition(x, y) {
+        this.x = x;
+        this.y = y;
+    }
 }
 
-function drawBall(ballObject) {
-    const ball = ballObject;
+function drawBall(BallClass) {
     ctx.beginPath();
-    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2);
+    ctx.arc(BallClass.x, BallClass.y, BallClass.radius, 0, Math.PI*2);
     ctx.fillStyle = "#0095DD";
     ctx.fill();
     ctx.closePath();
 }
 
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    let playerOne = ball;
-    let playerTwo = ball;
-    // playerTwo.setPosition(canvas.width, canvas.height);
-    drawBall(playerOne);
-    drawBall(playerTwo);
-    
-    if(playerOne.x + playerOne.dx > canvas.width-playerOne.radius || playerOne.x + playerOne.dx < playerOne.radius) {
+function wallDetection(BallClass) {
+    let dx = BallClass.dx;
+    let dy = BallClass.dy;
+    let x = BallClass.x;
+    let y = BallClass.y;
+    let futureX = x + dx;
+    let futureY = y + dy;
+    if(futureX > canvas.width-BallClass.radius || futureX < BallClass.radius) {
         dx = -dx;
     }
-    if(y + dy > canvas.height-ballRadius || y + dy < ballRadius) {
+    if(futureY > canvas.height-BallClass.radius || futureY < BallClass.radius) {
         dy = -dy;
     }
-    
     x += dx;
     y += dy;
+    return {
+        updatedX: x,
+        updatedY: y,
+        updatedDx: dx,
+        updatedDy: dy
+    }
 }
 
-setInterval(draw, 20);
+const playerOne = new Ball(`Dudung`, 10, 10, 10, 2, 2);
+const playerTwo = new Ball(`Maman`, 10, canvas.width-10, canvas.height-10, 2, 2);
+function mainGame() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let wallOne = wallDetection(playerOne);
+    let wallTwo = wallDetection(playerTwo);
+    drawBall(playerOne);
+    drawBall(playerTwo);
+    playerOne.setPosition(wallOne.updatedX, wallOne.updatedY);
+    playerTwo.setPosition(wallTwo.updatedX, wallTwo.updatedY);
+    playerOne.setSpeed(wallOne.updatedDx, wallOne.updatedDy);
+    playerTwo.setSpeed(wallTwo.updatedDx, wallTwo.updatedDy);
+}
+
+setInterval(mainGame, 20);
