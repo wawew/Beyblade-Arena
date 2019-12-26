@@ -223,4 +223,4 @@ function mainGame() {
     // console.log(playerOne)
 }
 
-setInterval(mainGame, 20);
+let interval = setInterval(mainGame, 20);
