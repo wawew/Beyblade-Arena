@@ -42,123 +42,111 @@ function keyUpHandler(e) {
 }
 
 class Ball {
-    constructor(name="player", radius, initX, initY, initDx, initDy) {
+    constructor(name="player", radius, initX, initY, initDx, initDy, color, mass) {
         this.name = name;
         this.radius = radius;
         this.x = initX;
         this.y = initY;
         this.dx = initDx;
         this.dy = initDy;
+        this.color = color;
+        this.mass = 1;
     }
     setSpeed(dx, dy) {
         this.dx = dx;
         this.dy = dy;
     }
-    setPosition(x, y) {
-        this.x = x;
-        this.y = y;
+    updateSpeed(dx, dy) {
+        this.dx += dx;
+        this.dy += dy;
+    }
+    updatePosition(dx, dy) {
+        this.x += dx;
+        this.y += dy;
     }
 }
 
 function drawBall(BallClass) {
     ctx.beginPath();
     ctx.arc(BallClass.x, BallClass.y, BallClass.radius, 0, Math.PI*2);
-    ctx.fillStyle = "#0095DD";
+    ctx.fillStyle = BallClass.color;
     ctx.fill();
     ctx.closePath();
 }
 
 
 function wallDetection(BallClass) {
+    const damping = 0.98;
     let dx = BallClass.dx;
     let dy = BallClass.dy;
     let x = BallClass.x;
     let y = BallClass.y;
-    let futureX = x + dx;
-    let futureY = y + dy;
-    if(futureX > canvas.width-BallClass.radius || futureX < BallClass.radius) {
+    if(x > canvas.width-BallClass.radius || x < BallClass.radius) {
         dx = -dx;
     }
-    if(futureY > canvas.height-BallClass.radius || futureY < BallClass.radius) {
+    if(y > canvas.height-BallClass.radius || y < BallClass.radius) {
         dy = -dy;
     }
-    x += dx;
-    y += dy;
     return {
-        updatedX: x,
-        updatedY: y,
-        updatedDx: dx,
-        updatedDy: dy
+        updatedSpeedX: dx,
+        updatedSpeedY: dy
     }
 }
 
-const playerOne = new Ball(`Dudung`, 10, 10, 10, 2, 2);
-const playerTwo = new Ball(`Maman`, 10, canvas.width-10, canvas.height-10, 2, 2);
+function ballCollision(BallOne, BallTwo) {
+    const deltaX = Math.abs(BallOne.x - BallTwo.x);
+    const deltaY = Math.abs(BallOne.y - BallTwo.y);
+    const gap = Math.sqrt(deltaX**2 + deltaY**2);
+    
+    const damping = 0.98;
+    const sumSpeedX = BallOne.dx + BallTwo.dx;
+    const sumSpeedY = BallOne.dy + BallTwo.dy;
+    const deltaSpeedX = BallOne.dx - BallTwo.dx;
+    const deltaSpeedY = BallOne.dy - BallTwo.dy;
+    let afterSpeedOneX = BallOne.dx
+    let afterSpeedOneY = BallOne.dy;
+    let afterSpeedTwoX = BallTwo.dx
+    let afterSpeedTwoY = BallTwo.dy;
+    
+    if(gap <= BallOne.radius+BallTwo.radius) {
+        afterSpeedOneX = (BallOne.dx * (BallOne.mass-BallTwo.mass) + (2*BallTwo.mass*BallTwo.dx)) / (BallOne.mass+BallTwo.mass);
+        afterSpeedOneY = (BallOne.dy * (BallOne.mass-BallTwo.mass) + (2*BallTwo.mass*BallTwo.dy)) / (BallOne.mass+BallTwo.mass);
+        afterSpeedTwoX = (BallTwo.dx * (BallTwo.mass-BallOne.mass) + (2*BallOne.mass*BallOne.dx)) / (BallOne.mass+BallTwo.mass);
+        afterSpeedTwoY = (BallTwo.dy * (BallTwo.mass-BallOne.mass) + (2*BallOne.mass*BallOne.dy)) / (BallOne.mass+BallTwo.mass);
+        
+        // afterSpeedOneX = damping*deltaSpeedX/2 + sumSpeedX/2;
+        // afterSpeedOneY = damping*deltaSpeedY/2 + sumSpeedY/2;
+        // afterSpeedTwoX = sumSpeedX/2 - damping*deltaSpeedX/2;
+        // afterSpeedTwoY = sumSpeedX/2 - damping*deltaSpeedY/2;
+        console.log("TABRAKAN");
+    }
+    
+    return {
+        updatedSpeedOneX: afterSpeedOneX,
+        updatedSpeedOneY: afterSpeedOneY,
+        updatedSpeedTwoX: afterSpeedTwoX,
+        updatedSpeedTwoY: afterSpeedTwoY
+    }
+}
+
+const playerOne = new Ball(`Dudung`, 20, 20, 20, 5, 2, "#0095DD", 1);
+const playerTwo = new Ball(`Maman`, 20, canvas.width-20, canvas.height-20, 2, 2, "#05683F", 1.2);
 function mainGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    let wallOne = wallDetection(playerOne);
-    let wallTwo = wallDetection(playerTwo);
     drawBall(playerOne);
     drawBall(playerTwo);
-    // control
-    let radSpeed;
-    if(rightPressed) {
-        playerOne.dx += 0.2;
-        radSpeed = Math.sqrt((playerOne.dx ** 2) + (playerOne.dy ** 2))
-        if (radSpeed > maxSpeed && playerOne.dx > maxSpeed) {
-            playerOne.dx -= 0.2;
-        } else if (radSpeed > maxSpeed) {
-            if (playerOne.dy > 0) {
-                playerOne.dy -= 0.2
-            } else {
-                playerOne.dy += 0.2
-            }
-        }
-    }
-    else if(leftPressed) {
-        playerOne.dx -= 0.2;
-        radSpeed = Math.sqrt((playerOne.dx ** 2) + (playerOne.dy ** 2))
-        if (radSpeed > maxSpeed && playerOne.dx < maxSpeed) {
-            playerOne.dx += 0.2;
-        } else if (radSpeed > maxSpeed) {
-            if (playerOne.dy > 0) {
-                playerOne.dy -= 0.2
-            } else {
-                playerOne.dy += 0.2
-            }
-        }
-    }
-    else if(upPressed) {
-        playerOne.dy -= 0.2;
-        radSpeed = Math.sqrt((playerOne.dx ** 2) + (playerOne.dy ** 2))
-        if (radSpeed > maxSpeed && playerOne.dy < maxSpeed) {
-            playerOne.dy += 0.2;
-        } else if (radSpeed > maxSpeed) {
-            if (playerOne.dx > 0) {
-                playerOne.dx -= 0.2
-            } else {
-                playerOne.dx += 0.2
-            }
-        }
-    }
-    else if(downPressed) {
-        playerOne.dy += 0.2;
-        radSpeed = Math.sqrt((playerOne.dx ** 2) + (playerOne.dy ** 2))
-        if (radSpeed > maxSpeed && playerOne.dy > maxSpeed) {
-            playerOne.dy -= 0.2;
-        } else if (radSpeed > maxSpeed) {
-            if (playerOne.dx > 0) {
-                playerOne.dx -= 0.2
-            } else {
-                playerOne.dx += 0.2
-            }
-        }
-    }
-    // end control
-    playerOne.setPosition(wallOne.updatedX, wallOne.updatedY);
-    playerTwo.setPosition(wallTwo.updatedX, wallTwo.updatedY);
-    playerOne.setSpeed(wallOne.updatedDx, wallOne.updatedDy);
-    playerTwo.setSpeed(wallTwo.updatedDx, wallTwo.updatedDy);
+
+    let collision = ballCollision(playerOne, playerTwo);
+    playerOne.setSpeed(collision.updatedSpeedOneX, collision.updatedSpeedOneY);
+    playerTwo.setSpeed(collision.updatedSpeedTwoX, collision.updatedSpeedTwoY);
+
+    let wallOne = wallDetection(playerOne);
+    let wallTwo = wallDetection(playerTwo);
+    playerOne.setSpeed(wallOne.updatedSpeedX, wallOne.updatedSpeedY);
+    playerTwo.setSpeed(wallTwo.updatedSpeedX, wallTwo.updatedSpeedY);
+
+    playerOne.updatePosition(playerOne.dx, playerOne.dy);
+    playerTwo.updatePosition(playerTwo.dx, playerTwo.dy);
 }
 
 setInterval(mainGame, 20);
