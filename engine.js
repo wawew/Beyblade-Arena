@@ -3,6 +3,18 @@ let ctx = canvas.getContext("2d");
 let x = canvas.width/2;
 let y = canvas.height-30;
 
+const paddleHeight = 10;
+const paddleWidth = canvas.width/2;
+const paddleX = (canvas.width-paddleWidth) / 2;
+const paddleY = canvas.height/8;
+const paddleY2 = (canvas.height*7)/8-10;
+
+const paddleXX = canvas.width/8;
+const paddleXX2 = canvas.width*7/8-10;
+const paddleWidthX = 10;
+const paddleHeightX = canvas.height/2;
+const paddleYX = canvas.height/4;
+
 class Ball {
     constructor(name="player", radius, initX, initY, initDx, initDy, color, mass) {
         this.name = name;
@@ -141,6 +153,13 @@ function drawBall(BallClass) {
     ctx.closePath();
 }
 
+function drawPaddle(paddleHeight, paddleWidth, paddleX, paddleY) {
+    ctx.beginPath();
+    ctx.rect(paddleX, (canvas.height-paddleY)-paddleHeight, paddleWidth, paddleHeight);
+    ctx.fillStyle = "#0095DD";
+    ctx.fill();
+    ctx.closePath();
+}
 
 function wallDetection(BallClass) {
     const damping = 0.98;
@@ -148,6 +167,27 @@ function wallDetection(BallClass) {
     let dy = BallClass.dy;
     let x = BallClass.x;
     let y = BallClass.y;
+
+    if(y === (canvas.height-paddleY)-paddleHeight) {
+        if(x >= paddleX && x <= paddleX + paddleWidth) {
+            dy = -dy;
+        }
+    }
+    if(y === canvas.height-paddleY2) {
+        if(x >= paddleX && x <= paddleX + paddleWidth) {
+            dy = -dy;
+        }
+    }
+    if(x === paddleXX+paddleWidthX) {
+        if (y > paddleYX && y < (paddleYX+paddleHeightX)) {
+            dx = -dx;
+        }
+    }
+    if(x === paddleXX2) {
+        if (y > paddleYX && y < (paddleYX+paddleHeightX)) {
+            dx = -dx;
+        }
+    }
     if(x >= canvas.width-BallClass.radius || x < BallClass.radius) {
         dx = -dx;
     }
@@ -196,10 +236,15 @@ function ballCollision(BallOne, BallTwo) {
     }
 }
 
+
 function mainGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBall(playerOne);
     drawBall(playerTwo);
+    drawPaddle(paddleHeight, paddleWidth, paddleX, paddleY);
+    drawPaddle(paddleHeight, paddleWidth, paddleX, paddleY2);
+    drawPaddle(paddleHeightX, paddleWidthX, paddleXX, paddleYX);
+    drawPaddle(paddleHeightX, paddleWidthX, paddleXX2, paddleYX);
 
     // if ( rightPressed || leftPressed || upPressed || downPressed ) {
     let varControlOne = control(playerOne);
@@ -222,5 +267,6 @@ function mainGame() {
 
     // console.log(playerOne)
 }
+
 
 let interval = setInterval(mainGame, 20);
