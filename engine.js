@@ -1,18 +1,7 @@
 let canvas = document.getElementById("myCanvas");
 let ctx = canvas.getContext("2d");
-let ballRadius = 10;
 let x = canvas.width/2;
 let y = canvas.height-30;
-let dx = 1;
-let dy = -1;
-
-// function ball() {//radius, x, y, dx, dy) {}
-//     let this.radius = ballRadius;
-//     let this.x = x;
-//     let this.y = y;
-//     let this.dx = dx;
-//     let this.dy = dy;
-// }
 
 let rightPressed = false;
 let leftPressed = false;
@@ -52,82 +41,124 @@ function keyUpHandler(e) {
     }
 }
 
-function drawBall() {
+class Ball {
+    constructor(name="player", radius, initX, initY, initDx, initDy) {
+        this.name = name;
+        this.radius = radius;
+        this.x = initX;
+        this.y = initY;
+        this.dx = initDx;
+        this.dy = initDy;
+    }
+    setSpeed(dx, dy) {
+        this.dx = dx;
+        this.dy = dy;
+    }
+    setPosition(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+}
+
+function drawBall(BallClass) {
     ctx.beginPath();
-    ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+    ctx.arc(BallClass.x, BallClass.y, BallClass.radius, 0, Math.PI*2);
     ctx.fillStyle = "#0095DD";
     ctx.fill();
     ctx.closePath();
 }
 
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawBall();
-    
-    if(x + dx > canvas.width-ballRadius || x + dx < ballRadius) {
+
+function wallDetection(BallClass) {
+    let dx = BallClass.dx;
+    let dy = BallClass.dy;
+    let x = BallClass.x;
+    let y = BallClass.y;
+    let futureX = x + dx;
+    let futureY = y + dy;
+    if(futureX > canvas.width-BallClass.radius || futureX < BallClass.radius) {
         dx = -dx;
     }
-    if(y + dy > canvas.height-ballRadius || y + dy < ballRadius) {
+    if(futureY > canvas.height-BallClass.radius || futureY < BallClass.radius) {
         dy = -dy;
     }
+    x += dx;
+    y += dy;
+    return {
+        updatedX: x,
+        updatedY: y,
+        updatedDx: dx,
+        updatedDy: dy
+    }
+}
 
-    let radSpeed
+const playerOne = new Ball(`Dudung`, 10, 10, 10, 2, 2);
+const playerTwo = new Ball(`Maman`, 10, canvas.width-10, canvas.height-10, 2, 2);
+function mainGame() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let wallOne = wallDetection(playerOne);
+    let wallTwo = wallDetection(playerTwo);
+    drawBall(playerOne);
+    drawBall(playerTwo);
+    // control
+    let radSpeed;
     if(rightPressed) {
-        dx += 0.2;
-        radSpeed = Math.sqrt((dx ** 2) + (dy ** 2))
-        if (radSpeed > maxSpeed && dx > maxSpeed) {
-            dx -= 0.2;
+        playerOne.dx += 0.2;
+        radSpeed = Math.sqrt((playerOne.dx ** 2) + (playerOne.dy ** 2))
+        if (radSpeed > maxSpeed && playerOne.dx > maxSpeed) {
+            playerOne.dx -= 0.2;
         } else if (radSpeed > maxSpeed) {
-            if (dy > 0) {
-                dy -= 0.2
+            if (playerOne.dy > 0) {
+                playerOne.dy -= 0.2
             } else {
-                dy += 0.2
+                playerOne.dy += 0.2
             }
         }
     }
     else if(leftPressed) {
-        dx -= 0.2;
-        radSpeed = Math.sqrt((dx ** 2) + (dy ** 2))
-        if (radSpeed > maxSpeed && dx < maxSpeed) {
-            dx += 0.2;
+        playerOne.dx -= 0.2;
+        radSpeed = Math.sqrt((playerOne.dx ** 2) + (playerOne.dy ** 2))
+        if (radSpeed > maxSpeed && playerOne.dx < maxSpeed) {
+            playerOne.dx += 0.2;
         } else if (radSpeed > maxSpeed) {
-            if (dy > 0) {
-                dy -= 0.2
+            if (playerOne.dy > 0) {
+                playerOne.dy -= 0.2
             } else {
-                dy += 0.2
+                playerOne.dy += 0.2
             }
         }
     }
     else if(upPressed) {
-        dy -= 0.2;
-        radSpeed = Math.sqrt((dx ** 2) + (dy ** 2))
-        if (radSpeed > maxSpeed && dy < maxSpeed) {
-            dy += 0.2;
+        playerOne.dy -= 0.2;
+        radSpeed = Math.sqrt((playerOne.dx ** 2) + (playerOne.dy ** 2))
+        if (radSpeed > maxSpeed && playerOne.dy < maxSpeed) {
+            playerOne.dy += 0.2;
         } else if (radSpeed > maxSpeed) {
-            if (dx > 0) {
-                dx -= 0.2
+            if (playerOne.dx > 0) {
+                playerOne.dx -= 0.2
             } else {
-                dx += 0.2
+                playerOne.dx += 0.2
             }
         }
     }
     else if(downPressed) {
-        dy += 0.2;
-        radSpeed = Math.sqrt((dx ** 2) + (dy ** 2))
-        if (radSpeed > maxSpeed && dy > maxSpeed) {
-            dy -= 0.2;
+        playerOne.dy += 0.2;
+        radSpeed = Math.sqrt((playerOne.dx ** 2) + (playerOne.dy ** 2))
+        if (radSpeed > maxSpeed && playerOne.dy > maxSpeed) {
+            playerOne.dy -= 0.2;
         } else if (radSpeed > maxSpeed) {
-            if (dx > 0) {
-                dx -= 0.2
+            if (playerOne.dx > 0) {
+                playerOne.dx -= 0.2
             } else {
-                dx += 0.2
+                playerOne.dx += 0.2
             }
         }
     }
-    
-    
-    x += dx;
-    y += dy;
+    // end control
+    playerOne.setPosition(wallOne.updatedX, wallOne.updatedY);
+    playerTwo.setPosition(wallTwo.updatedX, wallTwo.updatedY);
+    playerOne.setSpeed(wallOne.updatedDx, wallOne.updatedDy);
+    playerTwo.setSpeed(wallTwo.updatedDx, wallTwo.updatedDy);
 }
 
-setInterval(draw, 20);
+setInterval(mainGame, 20);
