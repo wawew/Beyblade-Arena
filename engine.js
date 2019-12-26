@@ -75,31 +75,56 @@ function draw() {
     if(rightPressed) {
         dx += 0.2;
         radSpeed = Math.sqrt((dx ** 2) + (dy ** 2))
-        if (radSpeed > 5){
+        if (radSpeed > maxSpeed && dx > maxSpeed) {
             dx -= 0.2;
+        } else if (radSpeed > maxSpeed) {
+            if (dy > 0) {
+                dy -= 0.2
+            } else {
+                dy += 0.2
+            }
         }
     }
     else if(leftPressed) {
         dx -= 0.2;
         radSpeed = Math.sqrt((dx ** 2) + (dy ** 2))
-        if (radSpeed > 5){
+        if (radSpeed > maxSpeed && dx < maxSpeed) {
             dx += 0.2;
+        } else if (radSpeed > maxSpeed) {
+            if (dy > 0) {
+                dy -= 0.2
+            } else {
+                dy += 0.2
+            }
         }
     }
     else if(upPressed) {
         dy -= 0.2;
         radSpeed = Math.sqrt((dx ** 2) + (dy ** 2))
-        if (radSpeed > 5){
+        if (radSpeed > maxSpeed && dy < maxSpeed) {
             dy += 0.2;
+        } else if (radSpeed > maxSpeed) {
+            if (dx > 0) {
+                dx -= 0.2
+            } else {
+                dx += 0.2
+            }
         }
     }
     else if(downPressed) {
         dy += 0.2;
         radSpeed = Math.sqrt((dx ** 2) + (dy ** 2))
-        if (radSpeed > 5){
+        if (radSpeed > maxSpeed && dy > maxSpeed) {
             dy -= 0.2;
+        } else if (radSpeed > maxSpeed) {
+            if (dx > 0) {
+                dx -= 0.2
+            } else {
+                dx += 0.2
+            }
         }
     }
+    
     
     x += dx;
     y += dy;
