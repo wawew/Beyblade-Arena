@@ -3,65 +3,6 @@ let ctx = canvas.getContext("2d");
 let x = canvas.width/2;
 let y = canvas.height-30;
 
-let rightPressed = false;
-let leftPressed = false;
-let upPressed = false;
-let downPressed = false;
-
-document.addEventListener("keydown", keyDownHandler, false);
-document.addEventListener("keyup", keyUpHandler, false);
-
-function keyDownHandler(e) {
-    if(e.key == "Right" || e.key == "ArrowRight" || e.key == "l") {
-        rightPressed = true;
-    }
-    else if(e.key == "Left" || e.key == "ArrowLeft" || e.key == "j") {
-        leftPressed = true;
-    }
-    else if(e.key == "Up" || e.key == "ArrowUp" || e.key == "i") {
-        upPressed = true;
-    }
-    else if(e.key == "Down" || e.key == "ArrowDown" || e.key == "k") {
-        downPressed = true;
-    }
-}
-
-function keyUpHandler(e) {
-    if(e.key == "Right" || e.key == "ArrowRight" || e.key == "l") {
-        rightPressed = false;
-    }
-    else if(e.key == "Left" || e.key == "ArrowLeft" || e.key == "j") {
-        leftPressed = false;
-    }
-    else if(e.key == "Up" || e.key == "ArrowUp" || e.key == "i") {
-        upPressed = false;
-    }
-    else if(e.key == "Down" || e.key == "ArrowDown" || e.key == "k") {
-        downPressed = false;
-    }
-}
-
-function control(ballObj) {
-    let xVal = ballObj.dx
-    let yVal = ballObj.dy
-    if (rightPressed) {
-        xVal = (ballObj.dx + 0.2);
-    } else if (leftPressed) {
-        xVal = (ballObj.dx - 0.2);
-    } else if (upPressed) {
-        yVal = (ballObj.dy - 0.2);
-    } else if (downPressed) {
-        yVal = (ballObj.dy + 0.2);
-    } else {
-        
-    }
-    console.log(xVal, yVal)
-    return {
-        resXSpeed: xVal,
-        resYSpeed: yVal
-    }
-}
-
 class Ball {
     constructor(name="player", radius, initX, initY, initDx, initDy, color, mass) {
         this.name = name;
@@ -71,7 +12,17 @@ class Ball {
         this.dx = initDx;
         this.dy = initDy;
         this.color = color;
-        this.mass = 1;
+        this.mass = mass;
+        this.upPressed = false;
+        this.downPressed = false;
+        this.rightPressed = false;
+        this.leftPressed = false;
+        this.key = {
+            up: 'i',
+            down: 'k',
+            left: 'j',
+            right: 'l'
+        }
     }
     setSpeed(dx, dy) {
         this.dx = dx;
@@ -84,6 +35,101 @@ class Ball {
     updatePosition(dx, dy) {
         this.x += dx;
         this.y += dy;
+    }
+    setKeys(up, down, left, right) {
+        this.key = {
+            up: up,
+            down: down,
+            left: left,
+            right: right
+        }
+    }
+}
+const playerOne = new Ball(`Dudung`, 20, 25, 25, 5, 2, "#0095DD", 1);
+const playerTwo = new Ball(`Maman`, 20, canvas.width-25, canvas.height-25, 2, 2, "#05683F", 1.2);
+playerTwo.setKeys('w','s','a','d');
+
+
+document.addEventListener("keydown", keyDownHandlerOne, false);
+document.addEventListener("keyup", keyUpHandlerOne, false);
+document.addEventListener("keydown", keyDownHandlerTwo, false);
+document.addEventListener("keyup", keyUpHandlerTwo, false);
+
+function keyDownHandlerOne(e) {
+    if(e.key === playerOne.key.right) {
+        playerOne.rightPressed=true;
+    }
+    else if(e.key === playerOne.key.left) {
+        playerOne.leftPressed=true;
+    }
+    else if(e.key === playerOne.key.up) {
+        playerOne.upPressed=true;
+    }
+    else if(e.key === playerOne.key.down) {
+        playerOne.downPressed=true;
+    }
+}
+function keyUpHandlerOne(e) {
+    if(e.key === playerOne.key.right) {
+        playerOne.rightPressed=false;
+    }
+    else if(e.key === playerOne.key.left) {
+        playerOne.leftPressed=false;
+    }
+    else if(e.key === playerOne.key.up) {
+        playerOne.upPressed=false;
+    }
+    else if(e.key === playerOne.key.down) {
+        playerOne.downPressed=false;
+    }
+}
+
+function keyDownHandlerTwo(e) {
+    if(e.key === playerTwo.key.right) {
+        playerTwo.rightPressed=true;
+    }
+    else if(e.key === playerTwo.key.left) {
+        playerTwo.leftPressed=true;
+    }
+    else if(e.key === playerTwo.key.up) {
+        playerTwo.upPressed=true;
+    }
+    else if(e.key === playerTwo.key.down) {
+        playerTwo.downPressed=true;
+    }
+}
+function keyUpHandlerTwo(e) {
+    if(e.key === playerTwo.key.right) {
+        playerTwo.rightPressed=false;
+    }
+    else if(e.key === playerTwo.key.left) {
+        playerTwo.leftPressed=false;
+    }
+    else if(e.key === playerTwo.key.up) {
+        playerTwo.upPressed=false;
+    }
+    else if(e.key === playerTwo.key.down) {
+        playerTwo.downPressed=false;
+    }
+}
+
+function control(ballObj) {
+    let xVal = ballObj.dx
+    let yVal = ballObj.dy
+    if (ballObj.rightPressed) {
+        xVal = (ballObj.dx + 0.2);
+    } else if (ballObj.leftPressed) {
+        xVal = (ballObj.dx - 0.2);
+    } else if (ballObj.upPressed) {
+        yVal = (ballObj.dy - 0.2);
+    } else if (ballObj.downPressed) {
+        yVal = (ballObj.dy + 0.2);
+    } else {
+        
+    }
+    return {
+        resXSpeed: xVal,
+        resYSpeed: yVal
     }
 }
 
@@ -102,10 +148,10 @@ function wallDetection(BallClass) {
     let dy = BallClass.dy;
     let x = BallClass.x;
     let y = BallClass.y;
-    if(x > canvas.width-BallClass.radius || x < BallClass.radius) {
+    if(x >= canvas.width-BallClass.radius || x < BallClass.radius) {
         dx = -dx;
     }
-    if(y > canvas.height-BallClass.radius || y < BallClass.radius) {
+    if(y >= canvas.height-BallClass.radius || y < BallClass.radius) {
         dy = -dy;
     }
     return {
@@ -150,16 +196,16 @@ function ballCollision(BallOne, BallTwo) {
     }
 }
 
-const playerOne = new Ball(`Dudung`, 20, 20, 20, 5, 2, "#0095DD", 1);
-const playerTwo = new Ball(`Maman`, 20, canvas.width-20, canvas.height-20, 2, 2, "#05683F", 1.2);
 function mainGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBall(playerOne);
     drawBall(playerTwo);
 
     // if ( rightPressed || leftPressed || upPressed || downPressed ) {
-    let varControl = control(playerOne);
-    playerOne.setSpeed(varControl.resXSpeed, varControl.resYSpeed);
+    let varControlOne = control(playerOne);
+    let varControlTwo = control(playerTwo);
+    playerOne.setSpeed(varControlOne.resXSpeed, varControlOne.resYSpeed);
+    playerTwo.setSpeed(varControlTwo.resXSpeed, varControlTwo.resYSpeed);
 
 
     let collision = ballCollision(playerOne, playerTwo);
