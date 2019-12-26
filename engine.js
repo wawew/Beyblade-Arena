@@ -3,54 +3,80 @@ let ctx = canvas.getContext("2d");
 let x = canvas.width/2;
 let y = canvas.height-30;
 
-let rightPressed = false;
-let leftPressed = false;
-let upPressed = false;
-let downPressed = false;
+// let rightPressed = false;
+// let leftPressed = false;
+// let upPressed = false;
+// let downPressed = false;
+let controlPressOne = [false,false,false,false]
+let controlPressTwo = [false,false,false,false]
 
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
 
 function keyDownHandler(e) {
     if(e.key == "Right" || e.key == "ArrowRight" || e.key == "l") {
-        rightPressed = true;
+        controlPressOne[0] = true;
     }
     else if(e.key == "Left" || e.key == "ArrowLeft" || e.key == "j") {
-        leftPressed = true;
+        controlPressOne[1] = true;
     }
     else if(e.key == "Up" || e.key == "ArrowUp" || e.key == "i") {
-        upPressed = true;
+        controlPressOne[2] = true;
     }
     else if(e.key == "Down" || e.key == "ArrowDown" || e.key == "k") {
-        downPressed = true;
+        controlPressOne[3] = true;
+    }
+    else if(e.key == "d") {
+        controlPressTwo[0] = true;
+    }
+    else if(e.key == "a") {
+        controlPressTwo[1] = true;
+    }
+    else if(e.key == "w") {
+        controlPressTwo[2] = true;
+    }
+    else if(e.key == "s") {
+        controlPressTwo[3] = true;
     }
 }
 
 function keyUpHandler(e) {
     if(e.key == "Right" || e.key == "ArrowRight" || e.key == "l") {
-        rightPressed = false;
+        controlPressOne[0] = false;
     }
     else if(e.key == "Left" || e.key == "ArrowLeft" || e.key == "j") {
-        leftPressed = false;
+        controlPressOne[1] = false;
     }
     else if(e.key == "Up" || e.key == "ArrowUp" || e.key == "i") {
-        upPressed = false;
+        controlPressOne[2] = false;
     }
     else if(e.key == "Down" || e.key == "ArrowDown" || e.key == "k") {
-        downPressed = false;
+        controlPressOne[3] = false;
+    }
+    else if(e.key == "d") {
+        controlPressTwo[0] = false;
+    }
+    else if(e.key == "a") {
+        controlPressTwo[1] = false;
+    }
+    else if(e.key == "w") {
+        controlPressTwo[2] = false;
+    }
+    else if(e.key == "s") {
+        controlPressTwo[3] = false;
     }
 }
 
-function control(ballObj) {
+function control(ballObj,controlArr) {
     let xVal = ballObj.dx
     let yVal = ballObj.dy
-    if (rightPressed) {
+    if (controlArr[0]) {
         xVal = (ballObj.dx + 0.2);
-    } else if (leftPressed) {
+    } else if (controlArr[1]) {
         xVal = (ballObj.dx - 0.2);
-    } else if (upPressed) {
+    } else if (controlArr[2]) {
         yVal = (ballObj.dy - 0.2);
-    } else if (downPressed) {
+    } else if (controlArr[3]) {
         yVal = (ballObj.dy + 0.2);
     } else {
         
@@ -158,8 +184,10 @@ function mainGame() {
     drawBall(playerTwo);
 
     // if ( rightPressed || leftPressed || upPressed || downPressed ) {
-    let varControl = control(playerOne);
-    playerOne.setSpeed(varControl.resXSpeed, varControl.resYSpeed);
+    let varControlOne = control(playerOne, controlPressOne);
+    playerOne.setSpeed(varControlOne.resXSpeed, varControlOne.resYSpeed);
+    let varControlTwo = control(playerTwo, controlPressTwo);
+    playerTwo.setSpeed(varControlTwo.resXSpeed, varControlTwo.resYSpeed);
 
 
     let collision = ballCollision(playerOne, playerTwo);
