@@ -168,25 +168,25 @@ function wallDetection(BallClass) {
     let x = BallClass.x;
     let y = BallClass.y;
 
-    if(y === (canvas.height-paddleY)-paddleHeight) {
+    if(y  >= (canvas.height-paddleY)-paddleHeight) {
         if(x >= paddleX && x <= paddleX + paddleWidth) {
             dy = -dy;
         }
     }
 
-    if(y === canvas.height-paddleY2) {
+    if(y <= canvas.height-paddleY2) {
         if(x >= paddleX && x <= paddleX + paddleWidth) {
             dy = -dy;
         }
     }
 
-    if(x === paddleXX+paddleWidthX) {
+    if(x >= paddleXX+paddleWidthX) {
         if (y > paddleYX && y < (paddleYX+paddleHeightX)) {
             dx = -dx;
         }
     }
 
-    if(x === paddleXX2) {
+    if(x <= paddleXX2) {
         if (y > paddleYX && y < (paddleYX+paddleHeightX)) {
             dx = -dx;
         }
