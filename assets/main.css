@@ -1,0 +1,21 @@
+@import url('https://fonts.googleapis.com/css?family=Acme&display=swap');
+
+body {
+    background-image: url("img/background.jpg");
+    background-size: 100%;
+}
+
+canvas { 
+    background: #eee; 
+    display: block; 
+    margin: 0 auto; 
+    margin-top: 10%;
+    border: 2px solid purple;
+    border-radius: 8%;
+}
+
+.header h1 {
+    text-align: center;
+    padding-top: 20%;
+    font-family: 'Acme', sans-serif;
+}
