@@ -12,32 +12,53 @@ document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
 
 function keyDownHandler(e) {
-    if(e.key == "Right" || e.key == "ArrowRight") {
+    if(e.key == "Right" || e.key == "ArrowRight" || e.key == "l") {
         rightPressed = true;
     }
-    else if(e.key == "Left" || e.key == "ArrowLeft") {
+    else if(e.key == "Left" || e.key == "ArrowLeft" || e.key == "j") {
         leftPressed = true;
     }
-    else if(e.key == "Up" || e.key == "ArrowUp") {
+    else if(e.key == "Up" || e.key == "ArrowUp" || e.key == "i") {
         upPressed = true;
     }
-    else if(e.key == "Down" || e.key == "ArrowDown") {
+    else if(e.key == "Down" || e.key == "ArrowDown" || e.key == "k") {
         downPressed = true;
     }
 }
 
 function keyUpHandler(e) {
-    if(e.key == "Right" || e.key == "ArrowRight") {
+    if(e.key == "Right" || e.key == "ArrowRight" || e.key == "l") {
         rightPressed = false;
     }
-    else if(e.key == "Left" || e.key == "ArrowLeft") {
+    else if(e.key == "Left" || e.key == "ArrowLeft" || e.key == "j") {
         leftPressed = false;
     }
-    else if(e.key == "Up" || e.key == "ArrowUp") {
+    else if(e.key == "Up" || e.key == "ArrowUp" || e.key == "i") {
         upPressed = false;
     }
-    else if(e.key == "Down" || e.key == "ArrowDown") {
+    else if(e.key == "Down" || e.key == "ArrowDown" || e.key == "k") {
         downPressed = false;
+    }
+}
+
+function control(ballObj) {
+    let xVal = ballObj.dx
+    let yVal = ballObj.dy
+    if (rightPressed) {
+        xVal = (ballObj.dx + 0.2);
+    } else if (leftPressed) {
+        xVal = (ballObj.dx - 0.2);
+    } else if (upPressed) {
+        yVal = (ballObj.dy - 0.2);
+    } else if (downPressed) {
+        yVal = (ballObj.dy + 0.2);
+    } else {
+        
+    }
+    console.log(xVal, yVal)
+    return {
+        resXSpeed: xVal,
+        resYSpeed: yVal
     }
 }
 
@@ -136,6 +157,11 @@ function mainGame() {
     drawBall(playerOne);
     drawBall(playerTwo);
 
+    // if ( rightPressed || leftPressed || upPressed || downPressed ) {
+    let varControl = control(playerOne);
+    playerOne.setSpeed(varControl.resXSpeed, varControl.resYSpeed);
+
+
     let collision = ballCollision(playerOne, playerTwo);
     playerOne.setSpeed(collision.updatedSpeedOneX, collision.updatedSpeedOneY);
     playerTwo.setSpeed(collision.updatedSpeedTwoX, collision.updatedSpeedTwoY);
@@ -147,6 +173,8 @@ function mainGame() {
 
     playerOne.updatePosition(playerOne.dx, playerOne.dy);
     playerTwo.updatePosition(playerTwo.dx, playerTwo.dy);
+
+    // console.log(playerOne)
 }
 
 setInterval(mainGame, 20);
