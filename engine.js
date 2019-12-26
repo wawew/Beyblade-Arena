@@ -42,7 +42,7 @@ function keyUpHandler(e) {
 }
 
 class Ball {
-    constructor(name="player", radius, initX, initY, initDx, initDy, color) {
+    constructor(name="player", radius, initX, initY, initDx, initDy, color, mass) {
         this.name = name;
         this.radius = radius;
         this.x = initX;
@@ -50,6 +50,7 @@ class Ball {
         this.dx = initDx;
         this.dy = initDy;
         this.color = color;
+        this.mass = 1;
     }
     setSpeed(dx, dy) {
         this.dx = dx;
@@ -108,10 +109,15 @@ function ballCollision(BallOne, BallTwo) {
     let afterSpeedTwoY = BallTwo.dy;
     
     if(gap <= BallOne.radius+BallTwo.radius) {
-        afterSpeedOneX = damping*deltaSpeedX/2 + sumSpeedX/2;
-        afterSpeedOneY = damping*deltaSpeedY/2 + sumSpeedY/2;
-        afterSpeedTwoX = sumSpeedX/2 - damping*deltaSpeedX/2;
-        afterSpeedTwoY = sumSpeedX/2 - damping*deltaSpeedY/2;
+        afterSpeedOneX = (BallOne.dx * (BallOne.mass-BallTwo.mass) + (2*BallTwo.mass*BallTwo.dx)) / (BallOne.mass+BallTwo.mass);
+        afterSpeedOneY = (BallOne.dy * (BallOne.mass-BallTwo.mass) + (2*BallTwo.mass*BallTwo.dy)) / (BallOne.mass+BallTwo.mass);
+        afterSpeedTwoX = (BallTwo.dx * (BallTwo.mass-BallOne.mass) + (2*BallOne.mass*BallOne.dx)) / (BallOne.mass+BallTwo.mass);
+        afterSpeedTwoY = (BallTwo.dy * (BallTwo.mass-BallOne.mass) + (2*BallOne.mass*BallOne.dy)) / (BallOne.mass+BallTwo.mass);
+        
+        // afterSpeedOneX = damping*deltaSpeedX/2 + sumSpeedX/2;
+        // afterSpeedOneY = damping*deltaSpeedY/2 + sumSpeedY/2;
+        // afterSpeedTwoX = sumSpeedX/2 - damping*deltaSpeedX/2;
+        // afterSpeedTwoY = sumSpeedX/2 - damping*deltaSpeedY/2;
         console.log("TABRAKAN");
     }
     
@@ -123,8 +129,8 @@ function ballCollision(BallOne, BallTwo) {
     }
 }
 
-const playerOne = new Ball(`Dudung`, 20, 20, 20, 5, 2, "#0095DD");
-const playerTwo = new Ball(`Maman`, 20, canvas.width-20, canvas.height-20, 2, 2, "#05683F");
+const playerOne = new Ball(`Dudung`, 20, 20, 20, 5, 2, "#0095DD", 1);
+const playerTwo = new Ball(`Maman`, 20, canvas.width-20, canvas.height-20, 2, 2, "#05683F", 1.2);
 function mainGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBall(playerOne);
