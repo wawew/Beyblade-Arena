@@ -34,6 +34,17 @@ class Ball {
             down: 'k',
             left: 'j',
             right: 'l'
+        };
+        this.health = 10;
+    }
+    updateHealth(hp) {
+        this.health += hp;
+    }
+    checkLose() {
+        if (this.health <= 0) {
+            alert(`GAME OVER\n${this.name} Lose!`);
+            document.location.reload();
+            clearInterval(interval);
         }
     }
     setSpeed(dx, dy) {
@@ -168,28 +179,18 @@ function wallDetection(BallClass) {
     let x = BallClass.x;
     let y = BallClass.y;
 
-    if(y >= (canvas.height-paddleY)-paddleHeight) {
-        if(x >= paddleX && x <= paddleX + paddleWidth) {
-            dy = -dy;
-        }
-    }
-
-    if(y <= canvas.height-paddleY2) {
-        if(x >= paddleX && x <= paddleX + paddleWidth) {
-            dy = -dy;
-        }
-    }
-
-    if(x >= paddleXX+paddleWidthX) {
-        if (y > paddleYX && y < (paddleYX+paddleHeightX)) {
-            dx = -dx;
-        }
-    }
-
-    if(x <= paddleXX2) {
-        if (y > paddleYX && y < (paddleYX+paddleHeightX)) {
-            dx = -dx;
-        }
+    if (x > paddleX && x < paddleX+paddleWidth && y > paddleY && y < paddleY+paddleHeight) {
+        dy = -dy;
+        BallClass.updateHealth(-1);
+    } else if (x > paddleX && x < paddleX+paddleWidth && y > paddleY2 && y < paddleY2+paddleHeight) {
+        dy = -dy;
+        BallClass.updateHealth(-1);
+    } else if (x > paddleXX && x < paddleXX+paddleWidthX && y > paddleYX && y < paddleYX+paddleHeightX) {
+        dx = -dx;
+        BallClass.updateHealth(-1);
+    } else if (x > paddleXX2 && x < paddleXX2+paddleWidthX && y > paddleYX && y < paddleYX+paddleHeightX) {
+        dx = -dx;
+        BallClass.updateHealth(-1);
     }
 
     if(y > canvas.height-BallClass.radius || y < BallClass.radius) {
@@ -267,6 +268,9 @@ function mainGame() {
 
     playerOne.updatePosition(playerOne.dx, playerOne.dy);
     playerTwo.updatePosition(playerTwo.dx, playerTwo.dy);
+
+    playerOne.checkLose();
+    playerTwo.checkLose();
 }
 
 let interval = setInterval(mainGame, 20);
