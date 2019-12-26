@@ -55,9 +55,13 @@ class Ball {
         this.dx = dx;
         this.dy = dy;
     }
-    setPosition(x, y) {
-        this.x = x;
-        this.y = y;
+    updateSpeed(dx, dy) {
+        this.dx += dx;
+        this.dy += dy;
+    }
+    updatePosition(dx, dy) {
+        this.x += dx;
+        this.y += dy;
     }
 }
 
@@ -71,38 +75,29 @@ function drawBall(BallClass) {
 
 
 function wallDetection(BallClass) {
+    const damping = 0.98;
     let dx = BallClass.dx;
     let dy = BallClass.dy;
     let x = BallClass.x;
     let y = BallClass.y;
-    let futureX = x + dx;
-    let futureY = y + dy;
-    if(futureX > canvas.width-BallClass.radius || futureX < BallClass.radius) {
+    if(x > canvas.width-BallClass.radius || x < BallClass.radius) {
         dx = -dx;
     }
-    if(futureY > canvas.height-BallClass.radius || futureY < BallClass.radius) {
+    if(y > canvas.height-BallClass.radius || y < BallClass.radius) {
         dy = -dy;
     }
-    x += dx;
-    y += dy;
     return {
-        updatedX: x,
-        updatedY: y,
-        updatedDx: dx,
-        updatedDy: dy
+        updatedSpeedX: dx,
+        updatedSpeedY: dy
     }
 }
 
 function ballCollision(BallOne, BallTwo) {
-    let oneX = BallOne.x;
-    let oneY = BallOne.y;
-    let twoX = BallTwo.x;
-    let twoY = BallOne.y;
-    const deltaX = oneX - twoX;
-    const deltaY = oneY - twoY;
+    const deltaX = Math.abs(BallOne.x - BallTwo.x);
+    const deltaY = Math.abs(BallOne.y - BallTwo.y);
     const gap = Math.sqrt(deltaX**2 + deltaY**2);
     
-    const damping = 1;
+    const damping = 0.98;
     const sumSpeedX = BallOne.dx + BallTwo.dx;
     const sumSpeedY = BallOne.dy + BallTwo.dy;
     const deltaSpeedX = BallOne.dx - BallTwo.dx;
@@ -117,18 +112,10 @@ function ballCollision(BallOne, BallTwo) {
         afterSpeedOneY = damping*deltaSpeedY/2 + sumSpeedY/2;
         afterSpeedTwoX = sumSpeedX/2 - damping*deltaSpeedX/2;
         afterSpeedTwoY = sumSpeedX/2 - damping*deltaSpeedY/2;
-        console.log("masuk")
+        console.log("TABRAKAN");
     }
     
-    oneX += afterSpeedOneX;
-    oneY += afterSpeedOneY;
-    twoX += afterSpeedTwoX;
-    twoY += afterSpeedTwoY;
     return {
-        updatedOneX: oneX,
-        updatedOneY: oneY,
-        updatedTwoX: twoX,
-        updatedTwoY: twoY,
         updatedSpeedOneX: afterSpeedOneX,
         updatedSpeedOneY: afterSpeedOneY,
         updatedSpeedTwoX: afterSpeedTwoX,
@@ -136,80 +123,24 @@ function ballCollision(BallOne, BallTwo) {
     }
 }
 
-const playerOne = new Ball(`Dudung`, 10, 10, 10, 2, 2, "#0095DD");
-const playerTwo = new Ball(`Maman`, 10, canvas.width-10, canvas.height-10, 2, 2, "#05683F");
+const playerOne = new Ball(`Dudung`, 20, 20, 20, 5, 2, "#0095DD");
+const playerTwo = new Ball(`Maman`, 20, canvas.width-20, canvas.height-20, 2, 2, "#05683F");
 function mainGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBall(playerOne);
     drawBall(playerTwo);
-    // control
-    // let radSpeed;
-    // if(rightPressed) {
-    //     playerOne.dx += 0.2;
-    //     radSpeed = Math.sqrt((playerOne.dx ** 2) + (playerOne.dy ** 2))
-    //     if (radSpeed > maxSpeed && playerOne.dx > maxSpeed) {
-    //         playerOne.dx -= 0.2;
-    //     } else if (radSpeed > maxSpeed) {
-    //         if (playerOne.dy > 0) {
-    //             playerOne.dy -= 0.2
-    //         } else {
-    //             playerOne.dy += 0.2
-    //         }
-    //     }
-    // }
-    // else if(leftPressed) {
-    //     playerOne.dx -= 0.2;
-    //     radSpeed = Math.sqrt((playerOne.dx ** 2) + (playerOne.dy ** 2))
-    //     if (radSpeed > maxSpeed && playerOne.dx < maxSpeed) {
-    //         playerOne.dx += 0.2;
-    //     } else if (radSpeed > maxSpeed) {
-    //         if (playerOne.dy > 0) {
-    //             playerOne.dy -= 0.2
-    //         } else {
-    //             playerOne.dy += 0.2
-    //         }
-    //     }
-    // }
-    // else if(upPressed) {
-    //     playerOne.dy -= 0.2;
-    //     radSpeed = Math.sqrt((playerOne.dx ** 2) + (playerOne.dy ** 2))
-    //     if (radSpeed > maxSpeed && playerOne.dy < maxSpeed) {
-    //         playerOne.dy += 0.2;
-    //     } else if (radSpeed > maxSpeed) {
-    //         if (playerOne.dx > 0) {
-    //             playerOne.dx -= 0.2
-    //         } else {
-    //             playerOne.dx += 0.2
-    //         }
-    //     }
-    // }
-    // else if(downPressed) {
-    //     playerOne.dy += 0.2;
-    //     radSpeed = Math.sqrt((playerOne.dx ** 2) + (playerOne.dy ** 2))
-    //     if (radSpeed > maxSpeed && playerOne.dy > maxSpeed) {
-    //         playerOne.dy -= 0.2;
-    //     } else if (radSpeed > maxSpeed) {
-    //         if (playerOne.dx > 0) {
-    //             playerOne.dx -= 0.2
-    //         } else {
-    //             playerOne.dx += 0.2
-    //         }
-    //     }
-    // }
-    // end control
-    // update on ball collision
+
     let collision = ballCollision(playerOne, playerTwo);
-    playerOne.setPosition(collision.updatedOneX, collision.updatedOneY);
-    playerTwo.setPosition(collision.updatedTwoX, collision.updatedTwoY);
     playerOne.setSpeed(collision.updatedSpeedOneX, collision.updatedSpeedOneY);
     playerTwo.setSpeed(collision.updatedSpeedTwoX, collision.updatedSpeedTwoY);
-    // update on wall collision
+
     let wallOne = wallDetection(playerOne);
     let wallTwo = wallDetection(playerTwo);
-    playerOne.setPosition(wallOne.updatedX, wallOne.updatedY);
-    playerTwo.setPosition(wallTwo.updatedX, wallTwo.updatedY);
-    playerOne.setSpeed(wallOne.updatedDx, wallOne.updatedDy);
-    playerTwo.setSpeed(wallTwo.updatedDx, wallTwo.updatedDy);
+    playerOne.setSpeed(wallOne.updatedSpeedX, wallOne.updatedSpeedY);
+    playerTwo.setSpeed(wallTwo.updatedSpeedX, wallTwo.updatedSpeedY);
+
+    playerOne.updatePosition(playerOne.dx, playerOne.dy);
+    playerTwo.updatePosition(playerTwo.dx, playerTwo.dy);
 }
 
 setInterval(mainGame, 20);
