@@ -3,11 +3,6 @@ let ctx = canvas.getContext("2d");
 let x = canvas.width/2;
 let y = canvas.height-30;
 
-let rightPressed = false;
-let leftPressed = false;
-let upPressed = false;
-let downPressed = false;
-
 const paddleHeight = 10;
 const paddleWidth = canvas.width/2;
 const paddleX = (canvas.width-paddleWidth) / 2;
@@ -20,39 +15,6 @@ const paddleWidthX = 10;
 const paddleHeightX = canvas.height/2;
 const paddleYX = canvas.height/4;
 
-document.addEventListener("keydown", keyDownHandler, false);
-document.addEventListener("keyup", keyUpHandler, false);
-
-function keyDownHandler(e) {
-    if(e.key == "Right" || e.key == "ArrowRight") {
-        rightPressed = true;
-    }
-    else if(e.key == "Left" || e.key == "ArrowLeft") {
-        leftPressed = true;
-    }
-    else if(e.key == "Up" || e.key == "ArrowUp") {
-        upPressed = true;
-    }
-    else if(e.key == "Down" || e.key == "ArrowDown") {
-        downPressed = true;
-    }
-}
-
-function keyUpHandler(e) {
-    if(e.key == "Right" || e.key == "ArrowRight") {
-        rightPressed = false;
-    }
-    else if(e.key == "Left" || e.key == "ArrowLeft") {
-        leftPressed = false;
-    }
-    else if(e.key == "Up" || e.key == "ArrowUp") {
-        upPressed = false;
-    }
-    else if(e.key == "Down" || e.key == "ArrowDown") {
-        downPressed = false;
-    }
-}
-
 class Ball {
     constructor(name="player", radius, initX, initY, initDx, initDy, color, mass) {
         this.name = name;
@@ -62,7 +24,17 @@ class Ball {
         this.dx = initDx;
         this.dy = initDy;
         this.color = color;
-        this.mass = 1;
+        this.mass = mass;
+        this.upPressed = false;
+        this.downPressed = false;
+        this.rightPressed = false;
+        this.leftPressed = false;
+        this.key = {
+            up: 'i',
+            down: 'k',
+            left: 'j',
+            right: 'l'
+        }
     }
     setSpeed(dx, dy) {
         this.dx = dx;
@@ -75,6 +47,101 @@ class Ball {
     updatePosition(dx, dy) {
         this.x += dx;
         this.y += dy;
+    }
+    setKeys(up, down, left, right) {
+        this.key = {
+            up: up,
+            down: down,
+            left: left,
+            right: right
+        }
+    }
+}
+const playerOne = new Ball(`Dudung`, 10, 20, 20, 5, 2, "#0095DD", 1);
+const playerTwo = new Ball(`Maman`, 10, canvas.width-20, canvas.height-20, 2, 2, "#05683F", 1.2);
+playerTwo.setKeys('w','s','a','d');
+
+
+document.addEventListener("keydown", keyDownHandlerOne, false);
+document.addEventListener("keyup", keyUpHandlerOne, false);
+document.addEventListener("keydown", keyDownHandlerTwo, false);
+document.addEventListener("keyup", keyUpHandlerTwo, false);
+
+function keyDownHandlerOne(e) {
+    if(e.key === playerOne.key.right) {
+        playerOne.rightPressed=true;
+    }
+    else if(e.key === playerOne.key.left) {
+        playerOne.leftPressed=true;
+    }
+    else if(e.key === playerOne.key.up) {
+        playerOne.upPressed=true;
+    }
+    else if(e.key === playerOne.key.down) {
+        playerOne.downPressed=true;
+    }
+}
+function keyUpHandlerOne(e) {
+    if(e.key === playerOne.key.right) {
+        playerOne.rightPressed=false;
+    }
+    else if(e.key === playerOne.key.left) {
+        playerOne.leftPressed=false;
+    }
+    else if(e.key === playerOne.key.up) {
+        playerOne.upPressed=false;
+    }
+    else if(e.key === playerOne.key.down) {
+        playerOne.downPressed=false;
+    }
+}
+
+function keyDownHandlerTwo(e) {
+    if(e.key === playerTwo.key.right) {
+        playerTwo.rightPressed=true;
+    }
+    else if(e.key === playerTwo.key.left) {
+        playerTwo.leftPressed=true;
+    }
+    else if(e.key === playerTwo.key.up) {
+        playerTwo.upPressed=true;
+    }
+    else if(e.key === playerTwo.key.down) {
+        playerTwo.downPressed=true;
+    }
+}
+function keyUpHandlerTwo(e) {
+    if(e.key === playerTwo.key.right) {
+        playerTwo.rightPressed=false;
+    }
+    else if(e.key === playerTwo.key.left) {
+        playerTwo.leftPressed=false;
+    }
+    else if(e.key === playerTwo.key.up) {
+        playerTwo.upPressed=false;
+    }
+    else if(e.key === playerTwo.key.down) {
+        playerTwo.downPressed=false;
+    }
+}
+
+function control(ballObj) {
+    let xVal = ballObj.dx
+    let yVal = ballObj.dy
+    if (ballObj.rightPressed) {
+        xVal = (ballObj.dx + 0.2);
+    } else if (ballObj.leftPressed) {
+        xVal = (ballObj.dx - 0.2);
+    } else if (ballObj.upPressed) {
+        yVal = (ballObj.dy - 0.2);
+    } else if (ballObj.downPressed) {
+        yVal = (ballObj.dy + 0.2);
+    } else {
+        
+    }
+    return {
+        resXSpeed: xVal,
+        resYSpeed: yVal
     }
 }
 
@@ -133,7 +200,6 @@ function wallDetection(BallClass) {
         dx = -dx;
     }
 
-
     return {
         updatedSpeedX: dx,
         updatedSpeedY: dy
@@ -176,8 +242,6 @@ function ballCollision(BallOne, BallTwo) {
     }
 }
 
-const playerOne = new Ball(`Dudung`, 10, 20, 20, 5, 2, "#0095DD", 1);
-const playerTwo = new Ball(`Maman`, 10, canvas.width-20, canvas.height-20, 2, 2, "#05683F", 1.2);
 function mainGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBall(playerOne);
@@ -187,6 +251,11 @@ function mainGame() {
     drawPaddle(paddleHeightX, paddleWidthX, paddleXX, paddleYX);
     drawPaddle(paddleHeightX, paddleWidthX, paddleXX2, paddleYX);
 
+    let varControlOne = control(playerOne);
+    let varControlTwo = control(playerTwo);
+    playerOne.setSpeed(varControlOne.resXSpeed, varControlOne.resYSpeed);
+    playerTwo.setSpeed(varControlTwo.resXSpeed, varControlTwo.resYSpeed);
+    
     let collision = ballCollision(playerOne, playerTwo);
     playerOne.setSpeed(collision.updatedSpeedOneX, collision.updatedSpeedOneY);
     playerTwo.setSpeed(collision.updatedSpeedTwoX, collision.updatedSpeedTwoY);
@@ -200,4 +269,4 @@ function mainGame() {
     playerTwo.updatePosition(playerTwo.dx, playerTwo.dy);
 }
 
-setInterval(mainGame, 10);
+let interval = setInterval(mainGame, 20);
