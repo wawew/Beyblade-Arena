@@ -23,27 +23,54 @@ const paddleLeftY = (canvas.height-paddleHeightVert)/2;
 const paddleRightX = canvas.width*7/8-10;
 const paddleRightY = paddleLeftY;
 
+const weightClass = {
+    heavy: 1.2,
+    middle: 1,
+    light: 0.8
+}
+
+const moveAngle = (direction,distance) => {
+    return {
+        x: Math.round(distance * Math.sin(direction) * 100)/100,
+        y: Math.round(0 - (distance * Math.cos(direction)) * 100)/100
+    }
+}
 class Ball {
-    constructor(name="player", radius, initX, initY, initDx, initDy, color, mass) {
+    constructor(name="player", radius, initX, initY, color, type) {
         this.name = name;
+        this.mass, this.dx, this.dy;
+        this.type = type;
         this.radius = radius;
         this.x = initX;
         this.y = initY;
-        this.dx = initDx;
-        this.dy = initDy;
         this.color = color;
-        this.mass = mass;
         this.upPressed = false;
         this.downPressed = false;
         this.rightPressed = false;
         this.leftPressed = false;
+        this.angle = 0
         this.key = {
             up: 'w',
             down: 's',
             left: 'a',
             right: 'd'
         };
-        this.health = 10;
+        this.health = 20;
+        this.calcInit(this.type);
+    }
+    calcInit(type) {
+        if(type === '//') {
+            this.mass = weightClass.middle;
+        } else if(type === 'z') {
+            this.mass = weightClass.light;
+        } else if(type === '+') {
+            this.mass = weightClass.heavy;
+        }
+        let initMomentum = 5;
+        let initSpeed = initMomentum/this.mass;
+        let initSpeedDir = Math.round((initSpeed / 2) * Math.sqrt(2) * 100 )/ 100;
+        this.dx = initSpeedDir;
+        this.dy = initSpeedDir;
     }
     updateHealth(hp) {
         this.health += hp;
@@ -75,9 +102,18 @@ class Ball {
             right: right
         }
     }
+    getSpeed() {
+        return {
+            dx: this.dx,
+            dy: this.dy
+        }
+    }
+    updateAngle(dA) {
+        this.angle += dA;
+    }
 }
-const playerOne = new Ball(`Dudung`, 10, paddleUpX, paddleLeftY, 5, 2, "#0095DD", 1);
-const playerTwo = new Ball(`Maman`, 10, paddleLowX+paddleWidthHorz, paddleRightY, -2, 2, "#05683F", 1.2);
+const playerOne = new Ball(`Dudung`, 10, 20, 20, "#0095DD", 'z');
+const playerTwo = new Ball(`Maman`, 10, canvas.width-20, canvas.height-20, "#05683F", '+');
 playerTwo.setKeys('i','k','j','l');
 
 
@@ -164,11 +200,53 @@ function control(ballObj) {
     }
 }
 
-function drawBall(ballObject) {
+function capFunction(initSpeed, nowSpeed) {
+    let radSpeed = Math.sqrt( (nowSpeed.dx ** 2) + (nowSpeed.dy ** 2) )
+    if (radSpeed > 10) {
+        return initSpeed
+    } else {
+        return nowSpeed
+    }
+}
+
+function drawBall(ballObject,design) {
     ctx.beginPath();
     ctx.arc(ballObject.x, ballObject.y, ballObject.radius, 0, Math.PI*2);
     ctx.fillStyle = ballObject.color;
     ctx.fill();
+    ctx.closePath();
+    ctx.fillText(ballObject.name, ballObject.x - 17, ballObject.y + ballObject.radius + 8);
+    ctx.beginPath();
+    // ctx.moveTo(ballObject.x,ballObject.y)
+    let target = moveAngle(ballObject.angle,ballObject.radius);
+    let target2 = moveAngle((ballObject.angle + Math.PI),ballObject.radius);
+    let target3 = moveAngle(ballObject.angle + (Math.PI/2),ballObject.radius);
+    let target4 = moveAngle(ballObject.angle - (Math.PI/2),ballObject.radius);
+    if (design == '//') {
+        ctx.moveTo(ballObject.x + target.x, ballObject.y + target.y);
+        ctx.lineTo(ballObject.x + target3.x, ballObject.y + target3.y);
+        ctx.stroke();
+        ctx.moveTo(ballObject.x + target4.x, ballObject.y + target4.y);
+        ctx.lineTo(ballObject.x + target2.x, ballObject.y + target2.y);
+        ctx.stroke();
+    } else if (design == 'z') {
+        ctx.moveTo(ballObject.x + target.x, ballObject.y + target.y);
+        ctx.lineTo(ballObject.x + target3.x, ballObject.y + target3.y);
+        ctx.stroke();
+        ctx.moveTo(ballObject.x + target4.x, ballObject.y + target4.y);
+        ctx.lineTo(ballObject.x + target2.x, ballObject.y + target2.y);
+        ctx.stroke();
+        ctx.moveTo(ballObject.x + target.x, ballObject.y + target.y);
+        ctx.lineTo(ballObject.x + target2.x, ballObject.y + target2.y);
+        ctx.stroke();
+    }else if (design == '+') {
+        ctx.moveTo(ballObject.x + target.x, ballObject.y + target.y);
+        ctx.lineTo(ballObject.x + target2.x, ballObject.y + target2.y);
+        ctx.stroke();
+        ctx.moveTo(ballObject.x + target3.x, ballObject.y + target3.y);
+        ctx.lineTo(ballObject.x + target4.x, ballObject.y + target4.y);
+        ctx.stroke();
+    }
     ctx.closePath();
 }
 
@@ -240,35 +318,14 @@ function ballCollision(ballOne, ballTwo) {
     }
 }
 
-// function boundaryDetection(ballObject) {
-//     let dx = ballObject.dx;
-//     let dy = ballObject.dy;
-//     let x = ballObject.x;
-//     let y = ballObject.y;
-
-//     if (x+dx <= paddleLeftX || x+dx <= paddleLeftX+paddleUpX && y+dy >= paddleUpY && y+dy <= paddleUpY+paddleHeightHorz) {
-//         dy = -dy;
-//         ballObject.updateHealth(-100000);
-//     } else if (x+dx > paddleUpX && x+dx < paddleUpX+paddleWidthHorz && y+dy > paddleLowY && y+dy < paddleLowY+paddleHeightHorz) {
-//         dy = -dy;
-//         ballObject.updateHealth(100000);
-//     } else if (x+dx > paddleLeftX && x+dx < paddleLeftX+paddleWidthVert && y+dy > paddleLeftY && y+dy < paddleLeftY+paddleHeightVert) {
-//         dx = -dx;
-//         ballObject.updateHealth(100000);
-//     } else if (x+dx > paddleRightX && x+dx < paddleRightX+paddleWidthVert && y+dy > paddleLeftY && y+dy < paddleLeftY+paddleHeightVert) {
-//         dx = -dx;
-//         ballObject.updateHealth(100000);
-//     }
-// }
-
-function showNyawa(BallClass) {
-    let nyawa = BallClass.health;
-    let player = BallClass.name;
+function showNyawa(ballObject) {
+    let nyawa = ballObject.health;
+    let player = ballObject.name;
     let nyawaBiru = document.getElementById("nyawaBiru");
     let nyawaHijau = document.getElementById("nyawaHijau");
     let player1 = document.getElementById("player1");
     let player2 = document.getElementById("player2");
-    if (BallClass === playerOne) {
+    if (ballObject === playerOne) {
         player1.innerHTML = player;
         nyawaBiru.innerHTML = nyawa;
     } else {
@@ -297,8 +354,9 @@ function showStatus(BallClass) {
 
 function mainGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawBall(playerOne);
-    drawBall(playerTwo);
+    drawBall(playerOne,'z');
+    drawBall(playerTwo,'+');
+    
     drawPaddle(paddleUpX, paddleUpY, paddleHeightHorz, paddleWidthHorz);
     drawPaddle(paddleLowX, paddleLowY, paddleHeightHorz, paddleWidthHorz);
     drawPaddle(paddleLeftX, paddleLeftY, paddleHeightVert, paddleWidthVert);
@@ -309,11 +367,20 @@ function mainGame() {
     showStatus(playerTwo);
     backSound.play()
 
+    let oneSpeed = playerOne.getSpeed();
+    let twoSpeed = playerTwo.getSpeed();
     let varControlOne = control(playerOne);
     let varControlTwo = control(playerTwo);
     playerOne.setSpeed(varControlOne.resXSpeed, varControlOne.resYSpeed);
     playerTwo.setSpeed(varControlTwo.resXSpeed, varControlTwo.resYSpeed);
-    
+    let oneSpeedNow = playerOne.getSpeed();
+    let twoSpeedNow = playerTwo.getSpeed();
+
+    let speedCapOne = capFunction(oneSpeed,oneSpeedNow);
+    let speedCapTwo = capFunction(twoSpeed,twoSpeedNow);
+    playerOne.setSpeed(speedCapOne.dx, speedCapOne.dy);
+    playerTwo.setSpeed(speedCapTwo.dx, speedCapTwo.dy);
+
     let collision = ballCollision(playerOne, playerTwo);
     playerOne.setSpeed(collision.updatedSpeedOneX, collision.updatedSpeedOneY);
     playerTwo.setSpeed(collision.updatedSpeedTwoX, collision.updatedSpeedTwoY);
@@ -325,6 +392,9 @@ function mainGame() {
 
     playerOne.updatePosition(playerOne.dx, playerOne.dy);
     playerTwo.updatePosition(playerTwo.dx, playerTwo.dy);
+
+    playerOne.updateAngle(0.1);
+    playerTwo.updateAngle(0.1);
 
     playerOne.checkLose();
     playerTwo.checkLose();
