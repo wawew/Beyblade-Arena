@@ -295,27 +295,6 @@ function ballCollision(ballOne, ballTwo) {
     }
 }
 
-// function boundaryDetection(ballObject) {
-//     let dx = ballObject.dx;
-//     let dy = ballObject.dy;
-//     let x = ballObject.x;
-//     let y = ballObject.y;
-
-//     if (x+dx <= paddleLeftX || x+dx <= paddleLeftX+paddleUpX && y+dy >= paddleUpY && y+dy <= paddleUpY+paddleHeightHorz) {
-//         dy = -dy;
-//         ballObject.updateHealth(-100000);
-//     } else if (x+dx > paddleUpX && x+dx < paddleUpX+paddleWidthHorz && y+dy > paddleLowY && y+dy < paddleLowY+paddleHeightHorz) {
-//         dy = -dy;
-//         ballObject.updateHealth(100000);
-//     } else if (x+dx > paddleLeftX && x+dx < paddleLeftX+paddleWidthVert && y+dy > paddleLeftY && y+dy < paddleLeftY+paddleHeightVert) {
-//         dx = -dx;
-//         ballObject.updateHealth(100000);
-//     } else if (x+dx > paddleRightX && x+dx < paddleRightX+paddleWidthVert && y+dy > paddleLeftY && y+dy < paddleLeftY+paddleHeightVert) {
-//         dx = -dx;
-//         ballObject.updateHealth(100000);
-//     }
-// }
-
 function showNyawa(BallClass) {
     let nyawa = BallClass.health;
     let player = BallClass.name;
