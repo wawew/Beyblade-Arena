@@ -190,7 +190,7 @@ function capFunction(initSpeed, nowSpeed) {
     }
 }
 
-function drawBall(BallClass) {
+function drawBall(BallClass,design) {
     ctx.beginPath();
     ctx.arc(BallClass.x, BallClass.y, BallClass.radius, 0, Math.PI*2);
     ctx.fillStyle = BallClass.color;
@@ -201,9 +201,33 @@ function drawBall(BallClass) {
     // ctx.moveTo(BallClass.x,BallClass.y)
     let target = moveAngle(BallClass.angle,BallClass.radius);
     let target2 = moveAngle((BallClass.angle + Math.PI),BallClass.radius);
-    ctx.moveTo(BallClass.x + target.x, BallClass.y + target.y);
-    ctx.lineTo(BallClass.x + target2.x, BallClass.y + target2.y);
-    ctx.stroke();
+    let target3 = moveAngle(BallClass.angle + (Math.PI/2),BallClass.radius);
+    let target4 = moveAngle(BallClass.angle - (Math.PI/2),BallClass.radius);
+    if (design == '//') {
+        ctx.moveTo(BallClass.x + target.x, BallClass.y + target.y);
+        ctx.lineTo(BallClass.x + target3.x, BallClass.y + target3.y);
+        ctx.stroke();
+        ctx.moveTo(BallClass.x + target4.x, BallClass.y + target4.y);
+        ctx.lineTo(BallClass.x + target2.x, BallClass.y + target2.y);
+        ctx.stroke();
+    } else if (design == 'z') {
+        ctx.moveTo(BallClass.x + target.x, BallClass.y + target.y);
+        ctx.lineTo(BallClass.x + target3.x, BallClass.y + target3.y);
+        ctx.stroke();
+        ctx.moveTo(BallClass.x + target4.x, BallClass.y + target4.y);
+        ctx.lineTo(BallClass.x + target2.x, BallClass.y + target2.y);
+        ctx.stroke();
+        ctx.moveTo(BallClass.x + target.x, BallClass.y + target.y);
+        ctx.lineTo(BallClass.x + target2.x, BallClass.y + target2.y);
+        ctx.stroke();
+    }else if (design == '+') {
+        ctx.moveTo(BallClass.x + target.x, BallClass.y + target.y);
+        ctx.lineTo(BallClass.x + target2.x, BallClass.y + target2.y);
+        ctx.stroke();
+        ctx.moveTo(BallClass.x + target3.x, BallClass.y + target3.y);
+        ctx.lineTo(BallClass.x + target4.x, BallClass.y + target4.y);
+        ctx.stroke();
+    }
     ctx.closePath();
 }
 
@@ -298,8 +322,8 @@ function ballCollision(BallOne, BallTwo) {
 
 function mainGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawBall(playerOne);
-    drawBall(playerTwo);
+    drawBall(playerOne,'z');
+    drawBall(playerTwo,'+');
     drawPaddle(paddleHeight, paddleWidth, paddleX, paddleY);
     drawPaddle(paddleHeight, paddleWidth, paddleX, paddleY2);
     drawPaddle(paddleHeightX, paddleWidthX, paddleXX, paddleYX);
