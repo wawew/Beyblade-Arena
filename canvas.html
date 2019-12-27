@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Beyblade Arena</title>
-    <link rel="stylesheet" href="assets/main.css">
-    <link rel="stylesheet" href="assets/bootstrap.min.css">
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Beyblade Arena</title>
+        <link rel="stylesheet" href="assets/main.css">
+        <link rel="stylesheet" href="assets/bootstrap.min.css">
+        <audio controls id="backsound">
+            <source src="assets/sound/backsound.mp3" type="audio/mpeg">
+        </audio>
+    </head>
 <body>
     <div class="container">
         <div class="row align-items-center">
@@ -18,14 +21,33 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-3"></div>
-            <div class="col-md-6">
-                <canvas id="myCanvas" width="480" height="320"></canvas>
+        <div class="row align-items-center">
+            <div class="col-md-2 nyawa1">
+                <h3 id="player1"></h3>
+                <h3 id="nyawaBiru"></h3>
+                <div class="status1">
+                    <h4>Status :</h4>
+                    <h5 id="speed1"></h5>
+                    <h5 id="massa1"></h5>
+                </div>
+                <img class="keyboard" src="assets/img/wasd.png" alt="">
+            </div>
+            <div class="col-md-8">
+                <canvas id="myCanvas" width="600" height="400"></canvas>
+            </div>
+            <div class="col-md-2 nyawa2">
+                <h3 id="player2"></h3>
+                <h3 id="nyawaHijau"></h3>
+                <div class="status2">
+                    <h4>Status :</h4>
+                    <h5 id="speed2"></h5>
+                    <h5 id="massa2"></h5>
+                </div>
+                <img class="keyboard" src="assets/img/ijkl.png" alt="">
             </div>
         </div>
     </div>
-
+    
     <script src="engine.js"></script>
 </body>
 </html>

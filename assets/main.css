@@ -9,13 +9,62 @@ canvas {
     background: #eee; 
     display: block; 
     margin: 0 auto; 
-    margin-top: 10%;
+    margin-top: 5%;
     border: 2px solid purple;
     border-radius: 8%;
 }
 
+.nyawa1, .nyawa2 {
+    opacity: 0.8;
+    border-radius: 10%;
+}
+
 .header h1 {
     text-align: center;
-    padding-top: 20%;
+    padding-top: 8%;
     font-family: 'Acme', sans-serif;
+    font-size: 50px;
 }
+
+.nyawa1 h3 {
+    text-align: center;
+    font-family: 'Acme', sans-serif;
+    color: white !important;
+    opacity: 1 !important;
+    border: 1px solid black;
+    background-color: #0095DD;
+    /* border-radius: 10%; */
+}
+
+#nyawaBiru, #nyawaHijau {
+    padding-top: 15px;
+    text-align: center;
+    height: 70px;
+}
+
+.nyawa2 h3 {
+    text-align: center;
+    font-family: 'Acme', sans-serif;
+    color: white !important;
+    opacity: 1 !important;
+    border: 1px solid black;
+    background-color:  #05683F;
+}
+
+.keyboard {
+    width: 100%;
+}
+
+.status1, .status2 {
+    padding: 10px;
+    font-family: 'Acme', sans-serif;
+    color: black !important;
+    border: 5px solid black;
+}
+/* .status1 {
+    background-color:  #0095DD;
+}
+
+.status2 {
+    background-color:  #05683F;
+} */
