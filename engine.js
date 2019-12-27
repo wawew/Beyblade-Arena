@@ -207,7 +207,7 @@ function capFunction(initSpeed, nowSpeed) {
     }
 }
 
-function drawBall(BallClass,design) {
+function drawBall(ballObject,design) {
     ctx.beginPath();
     ctx.arc(ballObject.x, ballObject.y, ballObject.radius, 0, Math.PI*2);
     ctx.fillStyle = ballObject.color;
@@ -215,34 +215,34 @@ function drawBall(BallClass,design) {
     ctx.closePath();
     ctx.fillText(ballObject.name, ballObject.x - 17, ballObject.y + ballObject.radius + 8);
     ctx.beginPath();
-    // ctx.moveTo(BallClass.x,BallClass.y)
-    let target = moveAngle(BallClass.angle,BallClass.radius);
-    let target2 = moveAngle((BallClass.angle + Math.PI),BallClass.radius);
-    let target3 = moveAngle(BallClass.angle + (Math.PI/2),BallClass.radius);
-    let target4 = moveAngle(BallClass.angle - (Math.PI/2),BallClass.radius);
+    // ctx.moveTo(ballObject.x,ballObject.y)
+    let target = moveAngle(ballObject.angle,ballObject.radius);
+    let target2 = moveAngle((ballObject.angle + Math.PI),ballObject.radius);
+    let target3 = moveAngle(ballObject.angle + (Math.PI/2),ballObject.radius);
+    let target4 = moveAngle(ballObject.angle - (Math.PI/2),ballObject.radius);
     if (design == '//') {
-        ctx.moveTo(BallClass.x + target.x, BallClass.y + target.y);
-        ctx.lineTo(BallClass.x + target3.x, BallClass.y + target3.y);
+        ctx.moveTo(ballObject.x + target.x, ballObject.y + target.y);
+        ctx.lineTo(ballObject.x + target3.x, ballObject.y + target3.y);
         ctx.stroke();
-        ctx.moveTo(BallClass.x + target4.x, BallClass.y + target4.y);
-        ctx.lineTo(BallClass.x + target2.x, BallClass.y + target2.y);
+        ctx.moveTo(ballObject.x + target4.x, ballObject.y + target4.y);
+        ctx.lineTo(ballObject.x + target2.x, ballObject.y + target2.y);
         ctx.stroke();
     } else if (design == 'z') {
-        ctx.moveTo(BallClass.x + target.x, BallClass.y + target.y);
-        ctx.lineTo(BallClass.x + target3.x, BallClass.y + target3.y);
+        ctx.moveTo(ballObject.x + target.x, ballObject.y + target.y);
+        ctx.lineTo(ballObject.x + target3.x, ballObject.y + target3.y);
         ctx.stroke();
-        ctx.moveTo(BallClass.x + target4.x, BallClass.y + target4.y);
-        ctx.lineTo(BallClass.x + target2.x, BallClass.y + target2.y);
+        ctx.moveTo(ballObject.x + target4.x, ballObject.y + target4.y);
+        ctx.lineTo(ballObject.x + target2.x, ballObject.y + target2.y);
         ctx.stroke();
-        ctx.moveTo(BallClass.x + target.x, BallClass.y + target.y);
-        ctx.lineTo(BallClass.x + target2.x, BallClass.y + target2.y);
+        ctx.moveTo(ballObject.x + target.x, ballObject.y + target.y);
+        ctx.lineTo(ballObject.x + target2.x, ballObject.y + target2.y);
         ctx.stroke();
     }else if (design == '+') {
-        ctx.moveTo(BallClass.x + target.x, BallClass.y + target.y);
-        ctx.lineTo(BallClass.x + target2.x, BallClass.y + target2.y);
+        ctx.moveTo(ballObject.x + target.x, ballObject.y + target.y);
+        ctx.lineTo(ballObject.x + target2.x, ballObject.y + target2.y);
         ctx.stroke();
-        ctx.moveTo(BallClass.x + target3.x, BallClass.y + target3.y);
-        ctx.lineTo(BallClass.x + target4.x, BallClass.y + target4.y);
+        ctx.moveTo(ballObject.x + target3.x, ballObject.y + target3.y);
+        ctx.lineTo(ballObject.x + target4.x, ballObject.y + target4.y);
         ctx.stroke();
     }
     ctx.closePath();
@@ -337,14 +337,14 @@ function ballCollision(ballOne, ballTwo) {
 //     }
 // }
 
-function showNyawa(BallClass) {
-    let nyawa = BallClass.health;
-    let player = BallClass.name;
+function showNyawa(ballObject) {
+    let nyawa = ballObject.health;
+    let player = ballObject.name;
     let nyawaBiru = document.getElementById("nyawaBiru");
     let nyawaHijau = document.getElementById("nyawaHijau");
     let player1 = document.getElementById("player1");
     let player2 = document.getElementById("player2");
-    if (BallClass === playerOne) {
+    if (ballObject === playerOne) {
         player1.innerHTML = player;
         nyawaBiru.innerHTML = nyawa;
     } else {
