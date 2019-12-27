@@ -66,8 +66,13 @@ class Ball {
         let initMomentum = 5;
         let initSpeed = initMomentum/this.mass;
         let initSpeedDir = Math.round((initSpeed / 2) * Math.sqrt(2) * 100 )/ 100;
-        this.dx = initSpeedDir;
-        this.dy = initSpeedDir;
+        if (this.x > canvas.width/2) {
+            this.dx = -initSpeedDir;
+            this.dy = -initSpeedDir;
+        } else {
+            this.dx = initSpeedDir;
+            this.dy = initSpeedDir;
+        }
     }
     updateHealth(hp) {
         this.health += hp;
