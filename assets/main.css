@@ -49,3 +49,7 @@ canvas {
     border: 1px solid black;
     background-color:  #05683F;
 }
+
+.keyboard {
+    width: 100%;
+}
