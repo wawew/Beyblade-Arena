@@ -26,18 +26,6 @@ const weightClass = {
     light: 0.8
 }
 
-const calcInit = (mass) => {
-    let initMomentum = 5;
-    let initSpeed = initMomentum/mass
-    let initSpeedDir = Math.round((initSpeed / 2) * Math.sqrt(2) * 100 )/ 100
-    console.log(initSpeedDir)
-    return {
-        mass: mass,
-        dx: initSpeedDir,
-        dy: initSpeedDir
-    }
-}
-
 const moveAngle = (direction,distance) => {
     return {
         x: Math.round(distance * Math.sin(direction) * 100)/100,
@@ -45,15 +33,14 @@ const moveAngle = (direction,distance) => {
     }
 }
 class Ball {
-    constructor(name="player", radius, initX, initY, initDx, initDy, color, mass) {
+    constructor(name="player", radius, initX, initY, color, type) {
         this.name = name;
+        this.mass, this.dx, this.dy;
+        this.type = type;
         this.radius = radius;
         this.x = initX;
         this.y = initY;
-        this.dx = initDx;
-        this.dy = initDy;
         this.color = color;
-        this.mass = mass;
         this.upPressed = false;
         this.downPressed = false;
         this.rightPressed = false;
@@ -65,7 +52,22 @@ class Ball {
             left: 'a',
             right: 'd'
         };
-        this.health = 10;
+        this.health = 20;
+        this.calcInit(this.type);
+    }
+    calcInit(type) {
+        if(type === '//') {
+            this.mass = weightClass.middle;
+        } else if(type === 'z') {
+            this.mass = weightClass.light;
+        } else if(type === '+') {
+            this.mass = weightClass.heavy;
+        }
+        let initMomentum = 5;
+        let initSpeed = initMomentum/this.mass;
+        let initSpeedDir = Math.round((initSpeed / 2) * Math.sqrt(2) * 100 )/ 100;
+        this.dx = initSpeedDir;
+        this.dy = initSpeedDir;
     }
     updateHealth(hp) {
         this.health += hp;
@@ -108,10 +110,8 @@ class Ball {
     }
 }
 
-let playerOneDetail = calcInit(weightClass.heavy)
-let playerTwoDetail = calcInit(weightClass.light)
-const playerOne = new Ball(`Dudung`, 10, 20, 20, playerOneDetail.dx, playerOneDetail.dy, "#0095DD", playerOneDetail.mass);
-const playerTwo = new Ball(`Maman`, 10, canvas.width-20, canvas.height-20, 0 - playerTwoDetail.dx, (0 - playerTwoDetail.dy), "#05683F", playerTwoDetail.mass);
+const playerOne = new Ball(`Dudung`, 10, 20, 20, "#0095DD", 'z');
+const playerTwo = new Ball(`Maman`, 10, canvas.width-20, canvas.height-20, "#05683F", '+');
 playerTwo.setKeys('i','k','j','l');
 
 
