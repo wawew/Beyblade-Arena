@@ -3,75 +3,84 @@ let ctx = canvas.getContext("2d");
 let x = canvas.width/2;
 let y = canvas.height-30;
 
-let rightPressed = false;
-let leftPressed = false;
-let upPressed = false;
-let downPressed = false;
+// backsound
+let backSound = document.getElementById("backsound")
 
-document.addEventListener("keydown", keyDownHandler, false);
-document.addEventListener("keyup", keyUpHandler, false);
+const paddleHeightHorz = 10;
+const paddleWidthHorz = canvas.width/2;
+const paddleWidthVert = 10;
+const paddleHeightVert = canvas.height/2;
+// upper paddle
+const paddleUpX = (canvas.width-paddleWidthHorz)/2;
+const paddleUpY = canvas.height/8;
+// lower paddle
+const paddleLowX = paddleUpX;
+const paddleLowY = (canvas.height*7)/8-10;
+// left paddle
+const paddleLeftX = canvas.width/8;
+const paddleLeftY = (canvas.height-paddleHeightVert)/2;
+// right paddle
+const paddleRightX = canvas.width*7/8-10;
+const paddleRightY = paddleLeftY;
 
-function keyDownHandler(e) {
-    if(e.key == "Right" || e.key == "ArrowRight" || e.key == "l") {
-        rightPressed = true;
-    }
-    else if(e.key == "Left" || e.key == "ArrowLeft" || e.key == "j") {
-        leftPressed = true;
-    }
-    else if(e.key == "Up" || e.key == "ArrowUp" || e.key == "i") {
-        upPressed = true;
-    }
-    else if(e.key == "Down" || e.key == "ArrowDown" || e.key == "k") {
-        downPressed = true;
-    }
+const weightClass = {
+    heavy: 1.2,
+    middle: 1,
+    light: 0.8
 }
 
-function keyUpHandler(e) {
-    if(e.key == "Right" || e.key == "ArrowRight" || e.key == "l") {
-        rightPressed = false;
-    }
-    else if(e.key == "Left" || e.key == "ArrowLeft" || e.key == "j") {
-        leftPressed = false;
-    }
-    else if(e.key == "Up" || e.key == "ArrowUp" || e.key == "i") {
-        upPressed = false;
-    }
-    else if(e.key == "Down" || e.key == "ArrowDown" || e.key == "k") {
-        downPressed = false;
-    }
-}
-
-function control(ballObj) {
-    let xVal = ballObj.dx
-    let yVal = ballObj.dy
-    if (rightPressed) {
-        xVal = (ballObj.dx + 0.2);
-    } else if (leftPressed) {
-        xVal = (ballObj.dx - 0.2);
-    } else if (upPressed) {
-        yVal = (ballObj.dy - 0.2);
-    } else if (downPressed) {
-        yVal = (ballObj.dy + 0.2);
-    } else {
-        
-    }
-    console.log(xVal, yVal)
+const moveAngle = (direction,distance) => {
     return {
-        resXSpeed: xVal,
-        resYSpeed: yVal
+        x: Math.round(distance * Math.sin(direction) * 100)/100,
+        y: Math.round(0 - (distance * Math.cos(direction)) * 100)/100
     }
 }
-
 class Ball {
-    constructor(name="player", radius, initX, initY, initDx, initDy, color, mass) {
+    constructor(name="player", radius, initX, initY, color, type) {
         this.name = name;
+        this.mass, this.dx, this.dy;
+        this.type = type;
         this.radius = radius;
         this.x = initX;
         this.y = initY;
-        this.dx = initDx;
-        this.dy = initDy;
         this.color = color;
-        this.mass = 1;
+        this.upPressed = false;
+        this.downPressed = false;
+        this.rightPressed = false;
+        this.leftPressed = false;
+        this.angle = 0
+        this.key = {
+            up: 'w',
+            down: 's',
+            left: 'a',
+            right: 'd'
+        };
+        this.health = 20;
+        this.calcInit(this.type);
+    }
+    calcInit(type) {
+        if(type === '//') {
+            this.mass = weightClass.middle;
+        } else if(type === 'z') {
+            this.mass = weightClass.light;
+        } else if(type === '+') {
+            this.mass = weightClass.heavy;
+        }
+        let initMomentum = 5;
+        let initSpeed = initMomentum/this.mass;
+        let initSpeedDir = Math.round((initSpeed / 2) * Math.sqrt(2) * 100 )/ 100;
+        this.dx = initSpeedDir;
+        this.dy = initSpeedDir;
+    }
+    updateHealth(hp) {
+        this.health += hp;
+    }
+    checkLose() {
+        if (this.health <= 0) {
+            alert(`GAME OVER\n${this.name} Lose!`);
+            document.location.reload();
+            clearInterval(interval);
+        }
     }
     setSpeed(dx, dy) {
         this.dx = dx;
@@ -85,60 +94,219 @@ class Ball {
         this.x += dx;
         this.y += dy;
     }
+    setKeys(up, down, left, right) {
+        this.key = {
+            up: up,
+            down: down,
+            left: left,
+            right: right
+        }
+    }
+    getSpeed() {
+        return {
+            dx: this.dx,
+            dy: this.dy
+        }
+    }
+    updateAngle(dA) {
+        this.angle += dA;
+    }
+}
+const playerOne = new Ball(`Dudung`, 10, 20, 20, "#0095DD", 'z');
+const playerTwo = new Ball(`Maman`, 10, canvas.width-20, canvas.height-20, "#05683F", '+');
+playerTwo.setKeys('i','k','j','l');
+
+
+document.addEventListener("keydown", keyDownHandlerOne, false);
+document.addEventListener("keyup", keyUpHandlerOne, false);
+document.addEventListener("keydown", keyDownHandlerTwo, false);
+document.addEventListener("keyup", keyUpHandlerTwo, false);
+
+function keyDownHandlerOne(e) {
+    if(e.key === playerOne.key.right) {
+        playerOne.rightPressed=true;
+    }
+    else if(e.key === playerOne.key.left) {
+        playerOne.leftPressed=true;
+    }
+    else if(e.key === playerOne.key.up) {
+        playerOne.upPressed=true;
+    }
+    else if(e.key === playerOne.key.down) {
+        playerOne.downPressed=true;
+    }
+}
+function keyUpHandlerOne(e) {
+    if(e.key === playerOne.key.right) {
+        playerOne.rightPressed=false;
+    }
+    else if(e.key === playerOne.key.left) {
+        playerOne.leftPressed=false;
+    }
+    else if(e.key === playerOne.key.up) {
+        playerOne.upPressed=false;
+    }
+    else if(e.key === playerOne.key.down) {
+        playerOne.downPressed=false;
+    }
 }
 
-function drawBall(BallClass) {
+function keyDownHandlerTwo(e) {
+    if(e.key === playerTwo.key.right) {
+        playerTwo.rightPressed=true;
+    }
+    else if(e.key === playerTwo.key.left) {
+        playerTwo.leftPressed=true;
+    }
+    else if(e.key === playerTwo.key.up) {
+        playerTwo.upPressed=true;
+    }
+    else if(e.key === playerTwo.key.down) {
+        playerTwo.downPressed=true;
+    }
+}
+function keyUpHandlerTwo(e) {
+    if(e.key === playerTwo.key.right) {
+        playerTwo.rightPressed=false;
+    }
+    else if(e.key === playerTwo.key.left) {
+        playerTwo.leftPressed=false;
+    }
+    else if(e.key === playerTwo.key.up) {
+        playerTwo.upPressed=false;
+    }
+    else if(e.key === playerTwo.key.down) {
+        playerTwo.downPressed=false;
+    }
+}
+
+function control(ballObj) {
+    let xVal = ballObj.dx
+    let yVal = ballObj.dy
+    if (ballObj.rightPressed) {
+        xVal = (ballObj.dx + 0.2);
+    } else if (ballObj.leftPressed) {
+        xVal = (ballObj.dx - 0.2);
+    } else if (ballObj.upPressed) {
+        yVal = (ballObj.dy - 0.2);
+    } else if (ballObj.downPressed) {
+        yVal = (ballObj.dy + 0.2);
+    } else {
+        
+    }
+    return {
+        resXSpeed: xVal,
+        resYSpeed: yVal
+    }
+}
+
+function capFunction(initSpeed, nowSpeed) {
+    let radSpeed = Math.sqrt( (nowSpeed.dx ** 2) + (nowSpeed.dy ** 2) )
+    if (radSpeed > 10) {
+        return initSpeed
+    } else {
+        return nowSpeed
+    }
+}
+
+function drawBall(ballObject,design) {
     ctx.beginPath();
-    ctx.arc(BallClass.x, BallClass.y, BallClass.radius, 0, Math.PI*2);
-    ctx.fillStyle = BallClass.color;
+    ctx.arc(ballObject.x, ballObject.y, ballObject.radius, 0, Math.PI*2);
+    ctx.fillStyle = ballObject.color;
+    ctx.fill();
+    ctx.closePath();
+    ctx.fillText(ballObject.name, ballObject.x - 17, ballObject.y + ballObject.radius + 8);
+    ctx.beginPath();
+    // ctx.moveTo(ballObject.x,ballObject.y)
+    let target = moveAngle(ballObject.angle,ballObject.radius);
+    let target2 = moveAngle((ballObject.angle + Math.PI),ballObject.radius);
+    let target3 = moveAngle(ballObject.angle + (Math.PI/2),ballObject.radius);
+    let target4 = moveAngle(ballObject.angle - (Math.PI/2),ballObject.radius);
+    if (design == '//') {
+        ctx.moveTo(ballObject.x + target.x, ballObject.y + target.y);
+        ctx.lineTo(ballObject.x + target3.x, ballObject.y + target3.y);
+        ctx.stroke();
+        ctx.moveTo(ballObject.x + target4.x, ballObject.y + target4.y);
+        ctx.lineTo(ballObject.x + target2.x, ballObject.y + target2.y);
+        ctx.stroke();
+    } else if (design == 'z') {
+        ctx.moveTo(ballObject.x + target.x, ballObject.y + target.y);
+        ctx.lineTo(ballObject.x + target3.x, ballObject.y + target3.y);
+        ctx.stroke();
+        ctx.moveTo(ballObject.x + target4.x, ballObject.y + target4.y);
+        ctx.lineTo(ballObject.x + target2.x, ballObject.y + target2.y);
+        ctx.stroke();
+        ctx.moveTo(ballObject.x + target.x, ballObject.y + target.y);
+        ctx.lineTo(ballObject.x + target2.x, ballObject.y + target2.y);
+        ctx.stroke();
+    }else if (design == '+') {
+        ctx.moveTo(ballObject.x + target.x, ballObject.y + target.y);
+        ctx.lineTo(ballObject.x + target2.x, ballObject.y + target2.y);
+        ctx.stroke();
+        ctx.moveTo(ballObject.x + target3.x, ballObject.y + target3.y);
+        ctx.lineTo(ballObject.x + target4.x, ballObject.y + target4.y);
+        ctx.stroke();
+    }
+    ctx.closePath();
+}
+
+function drawPaddle(paddleUpX, paddleUpY, paddleHeight, paddleWidth) {
+    ctx.beginPath();
+    ctx.rect(paddleUpX, paddleUpY, paddleWidth, paddleHeight);
+    ctx.fillStyle = "#0095DD";
     ctx.fill();
     ctx.closePath();
 }
 
+function wallDetection(ballObject) {
+    let dx = ballObject.dx;
+    let dy = ballObject.dy;
+    let x = ballObject.x;
+    let y = ballObject.y;
 
-function wallDetection(BallClass) {
-    const damping = 0.98;
-    let dx = BallClass.dx;
-    let dy = BallClass.dy;
-    let x = BallClass.x;
-    let y = BallClass.y;
-    if(x > canvas.width-BallClass.radius || x < BallClass.radius) {
+    if (x+dx >= paddleLeftX && x+dx <= paddleLeftX+paddleWidthVert && y+dy >= paddleLeftY && y+dy <= paddleLeftY+paddleHeightVert) {
         dx = -dx;
+        ballObject.updateHealth(-1);
+    } else if (x+dx >= paddleRightX && x+dx <= paddleRightX+paddleWidthVert && y+dy >= paddleRightY && y+dy <= paddleRightY+paddleHeightVert) {
+        dx = -dx;
+        ballObject.updateHealth(-1);
+    } else if (x+dx >= paddleUpX && x+dx <= paddleUpX+paddleWidthHorz && y+dy >= paddleUpY && y+dy <= paddleUpY+paddleHeightHorz) {
+        dy = -dy;
+        ballObject.updateHealth(-1);
+    } else if (x+dx >= paddleLowX && x+dx <= paddleLowX+paddleWidthHorz && y+dy >= paddleLowY && y+dy <= paddleLowY+paddleHeightHorz) {
+        dy = -dy;
+        ballObject.updateHealth(-1);
     }
-    if(y > canvas.height-BallClass.radius || y < BallClass.radius) {
+
+    if(y > canvas.height-ballObject.radius || y < ballObject.radius) {
         dy = -dy;
     }
+    
+    if(x > canvas.width-ballObject.radius || x < ballObject.radius) {
+        dx = -dx;
+    }
+
     return {
         updatedSpeedX: dx,
         updatedSpeedY: dy
     }
 }
 
-function ballCollision(BallOne, BallTwo) {
-    const deltaX = Math.abs(BallOne.x - BallTwo.x);
-    const deltaY = Math.abs(BallOne.y - BallTwo.y);
+function ballCollision(ballOne, ballTwo) {
+    const deltaX = Math.abs(ballOne.x - ballTwo.x);
+    const deltaY = Math.abs(ballOne.y - ballTwo.y);
     const gap = Math.sqrt(deltaX**2 + deltaY**2);
     
-    const damping = 0.98;
-    const sumSpeedX = BallOne.dx + BallTwo.dx;
-    const sumSpeedY = BallOne.dy + BallTwo.dy;
-    const deltaSpeedX = BallOne.dx - BallTwo.dx;
-    const deltaSpeedY = BallOne.dy - BallTwo.dy;
-    let afterSpeedOneX = BallOne.dx
-    let afterSpeedOneY = BallOne.dy;
-    let afterSpeedTwoX = BallTwo.dx
-    let afterSpeedTwoY = BallTwo.dy;
+    let afterSpeedOneX = ballOne.dx
+    let afterSpeedOneY = ballOne.dy;
+    let afterSpeedTwoX = ballTwo.dx
+    let afterSpeedTwoY = ballTwo.dy;
     
-    if(gap <= BallOne.radius+BallTwo.radius) {
-        afterSpeedOneX = (BallOne.dx * (BallOne.mass-BallTwo.mass) + (2*BallTwo.mass*BallTwo.dx)) / (BallOne.mass+BallTwo.mass);
-        afterSpeedOneY = (BallOne.dy * (BallOne.mass-BallTwo.mass) + (2*BallTwo.mass*BallTwo.dy)) / (BallOne.mass+BallTwo.mass);
-        afterSpeedTwoX = (BallTwo.dx * (BallTwo.mass-BallOne.mass) + (2*BallOne.mass*BallOne.dx)) / (BallOne.mass+BallTwo.mass);
-        afterSpeedTwoY = (BallTwo.dy * (BallTwo.mass-BallOne.mass) + (2*BallOne.mass*BallOne.dy)) / (BallOne.mass+BallTwo.mass);
-        
-        // afterSpeedOneX = damping*deltaSpeedX/2 + sumSpeedX/2;
-        // afterSpeedOneY = damping*deltaSpeedY/2 + sumSpeedY/2;
-        // afterSpeedTwoX = sumSpeedX/2 - damping*deltaSpeedX/2;
-        // afterSpeedTwoY = sumSpeedX/2 - damping*deltaSpeedY/2;
+    if(gap <= ballOne.radius+ballTwo.radius) {
+        afterSpeedOneX = (ballOne.dx*(ballOne.mass-ballTwo.mass) + (2*ballTwo.mass*ballTwo.dx)) / (ballOne.mass+ballTwo.mass);
+        afterSpeedOneY = (ballOne.dy*(ballOne.mass-ballTwo.mass) + (2*ballTwo.mass*ballTwo.dy)) / (ballOne.mass+ballTwo.mass);
+        afterSpeedTwoX = (ballTwo.dx*(ballTwo.mass-ballOne.mass) + (2*ballOne.mass*ballOne.dx)) / (ballOne.mass+ballTwo.mass);
+        afterSpeedTwoY = (ballTwo.dy*(ballTwo.mass-ballOne.mass) + (2*ballOne.mass*ballOne.dy)) / (ballOne.mass+ballTwo.mass);
         console.log("TABRAKAN");
     }
     
@@ -150,17 +318,68 @@ function ballCollision(BallOne, BallTwo) {
     }
 }
 
-const playerOne = new Ball(`Dudung`, 20, 20, 20, 5, 2, "#0095DD", 1);
-const playerTwo = new Ball(`Maman`, 20, canvas.width-20, canvas.height-20, 2, 2, "#05683F", 1.2);
+function showNyawa(ballObject) {
+    let nyawa = ballObject.health;
+    let player = ballObject.name;
+    let nyawaBiru = document.getElementById("nyawaBiru");
+    let nyawaHijau = document.getElementById("nyawaHijau");
+    let player1 = document.getElementById("player1");
+    let player2 = document.getElementById("player2");
+    if (ballObject === playerOne) {
+        player1.innerHTML = player;
+        nyawaBiru.innerHTML = nyawa;
+    } else {
+        player2.innerHTML = player;
+        nyawaHijau.innerHTML = nyawa;
+    }
+}
+
+function showStatus(BallClass) {
+    let dx = BallClass.dx;
+    let dy = BallClass.dy;
+    let massa = BallClass.mass;
+    let speed = Math.round((Math.sqrt(dx**2 + dy**2))*100)/100;
+    let speedStatus1 = document.getElementById("speed1");
+    let speedStatus2 = document.getElementById("speed2");
+    let massaStatus1 = document.getElementById("massa1");
+    let massaStatus2 = document.getElementById("massa2");
+    if (BallClass === playerOne) {
+        speedStatus1.innerHTML = `Speed : ${speed}`;
+        massaStatus1.innerHTML = `Mass : ${massa}`;
+    } else {
+        speedStatus2.innerHTML = `Speed : ${speed}`;
+        massaStatus2.innerHTML = `Mass : ${massa}`;
+    }
+}
+
 function mainGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawBall(playerOne);
-    drawBall(playerTwo);
+    drawBall(playerOne,'z');
+    drawBall(playerTwo,'+');
+    
+    drawPaddle(paddleUpX, paddleUpY, paddleHeightHorz, paddleWidthHorz);
+    drawPaddle(paddleLowX, paddleLowY, paddleHeightHorz, paddleWidthHorz);
+    drawPaddle(paddleLeftX, paddleLeftY, paddleHeightVert, paddleWidthVert);
+    drawPaddle(paddleRightX, paddleRightY, paddleHeightVert, paddleWidthVert);
+    showNyawa(playerOne);
+    showNyawa(playerTwo);
+    showStatus(playerOne);
+    showStatus(playerTwo);
+    backSound.play()
 
-    // if ( rightPressed || leftPressed || upPressed || downPressed ) {
-    let varControl = control(playerOne);
-    playerOne.setSpeed(varControl.resXSpeed, varControl.resYSpeed);
+    let oneSpeed = playerOne.getSpeed();
+    let twoSpeed = playerTwo.getSpeed();
+    let varControlOne = control(playerOne);
+    let varControlTwo = control(playerTwo);
+    playerOne.setSpeed(varControlOne.resXSpeed, varControlOne.resYSpeed);
+    playerTwo.setSpeed(varControlTwo.resXSpeed, varControlTwo.resYSpeed);
+    let oneSpeedNow = playerOne.getSpeed();
+    let twoSpeedNow = playerTwo.getSpeed();
 
+    let speedCapOne = capFunction(oneSpeed,oneSpeedNow);
+    let speedCapTwo = capFunction(twoSpeed,twoSpeedNow);
+    playerOne.setSpeed(speedCapOne.dx, speedCapOne.dy);
+    playerTwo.setSpeed(speedCapTwo.dx, speedCapTwo.dy);
 
     let collision = ballCollision(playerOne, playerTwo);
     playerOne.setSpeed(collision.updatedSpeedOneX, collision.updatedSpeedOneY);
@@ -174,7 +393,11 @@ function mainGame() {
     playerOne.updatePosition(playerOne.dx, playerOne.dy);
     playerTwo.updatePosition(playerTwo.dx, playerTwo.dy);
 
-    // console.log(playerOne)
+    playerOne.updateAngle(0.1);
+    playerTwo.updateAngle(0.1);
+
+    playerOne.checkLose();
+    playerTwo.checkLose();
 }
 
-setInterval(mainGame, 20);
+let interval = setInterval(mainGame, 20);
