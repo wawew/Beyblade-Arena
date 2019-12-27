@@ -15,6 +15,23 @@ const paddleWidthX = 10;
 const paddleHeightX = canvas.height/2;
 const paddleYX = canvas.height/4;
 
+const weightClass = {
+    heavy: 1.2,
+    middle: 1,
+    light: 0.8
+}
+
+const calcInit = (mass) => {
+    let initMomentum = 5;
+    let initSpeed = initMomentum/mass
+    let initSpeedDir = Math.round((initSpeed / 2) * Math.sqrt(2) * 100 )/ 100
+    console.log(initSpeedDir)
+    return {
+        mass: mass,
+        dx: initSpeedDir,
+        dy: initSpeedDir
+    }
+}
 class Ball {
     constructor(name="player", radius, initX, initY, initDx, initDy, color, mass) {
         this.name = name;
@@ -56,9 +73,17 @@ class Ball {
             right: right
         }
     }
+    getSpeed() {
+        return {
+            dx: this.dx,
+            dy: this.dy
+        }
+    }
 }
-const playerOne = new Ball(`Dudung`, 10, 20, 20, 5, 2, "#0095DD", 1);
-const playerTwo = new Ball(`Maman`, 10, canvas.width-20, canvas.height-20, 2, 2, "#05683F", 1.2);
+let playerOneDetail = calcInit(weightClass.heavy)
+let playerTwoDetail = calcInit(weightClass.light)
+const playerOne = new Ball(`Dudung`, 10, 20, 20, playerOneDetail.dx, playerOneDetail.dy, "#0095DD", playerOneDetail.mass);
+const playerTwo = new Ball(`Maman`, 10, canvas.width-20, canvas.height-20, playerTwoDetail.dx, -playerTwoDetail.dy, "#05683F", playerTwoDetail.mass);
 playerTwo.setKeys('w','s','a','d');
 
 
@@ -145,12 +170,22 @@ function control(ballObj) {
     }
 }
 
+function capFunction(initSpeed, nowSpeed) {
+    let radSpeed = Math.sqrt( (nowSpeed.dx ** 2) + (nowSpeed.dy ** 2) )
+    if (radSpeed > 10) {
+        return initSpeed
+    } else {
+        return nowSpeed
+    }
+}
+
 function drawBall(BallClass) {
     ctx.beginPath();
     ctx.arc(BallClass.x, BallClass.y, BallClass.radius, 0, Math.PI*2);
     ctx.fillStyle = BallClass.color;
     ctx.fill();
     ctx.closePath();
+    ctx.fillText(BallClass.name, BallClass.x, BallClass.y + BallClass.radius + 5);
 }
 
 function drawPaddle(paddleHeight, paddleWidth, paddleX, paddleY) {
@@ -231,7 +266,7 @@ function ballCollision(BallOne, BallTwo) {
         // afterSpeedOneY = damping*deltaSpeedY/2 + sumSpeedY/2;
         // afterSpeedTwoX = sumSpeedX/2 - damping*deltaSpeedX/2;
         // afterSpeedTwoY = sumSpeedX/2 - damping*deltaSpeedY/2;
-        console.log("TABRAKAN");
+        // console.log("TABRAKAN");
     }
     
     return {
@@ -251,11 +286,20 @@ function mainGame() {
     drawPaddle(paddleHeightX, paddleWidthX, paddleXX, paddleYX);
     drawPaddle(paddleHeightX, paddleWidthX, paddleXX2, paddleYX);
 
+    let oneSpeed = playerOne.getSpeed();
+    let twoSpeed = playerTwo.getSpeed();
     let varControlOne = control(playerOne);
     let varControlTwo = control(playerTwo);
     playerOne.setSpeed(varControlOne.resXSpeed, varControlOne.resYSpeed);
     playerTwo.setSpeed(varControlTwo.resXSpeed, varControlTwo.resYSpeed);
-    
+    let oneSpeedNow = playerOne.getSpeed();
+    let twoSpeedNow = playerTwo.getSpeed();
+
+    let speedCapOne = capFunction(oneSpeed,oneSpeedNow);
+    let speedCapTwo = capFunction(twoSpeed,twoSpeedNow);
+    playerOne.setSpeed(speedCapOne.dx, speedCapOne.dy);
+    playerTwo.setSpeed(speedCapTwo.dx, speedCapTwo.dy);
+
     let collision = ballCollision(playerOne, playerTwo);
     playerOne.setSpeed(collision.updatedSpeedOneX, collision.updatedSpeedOneY);
     playerTwo.setSpeed(collision.updatedSpeedTwoX, collision.updatedSpeedTwoY);
