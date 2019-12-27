@@ -32,6 +32,13 @@ const calcInit = (mass) => {
         dy: initSpeedDir
     }
 }
+
+const moveAngle = (direction,distance) => {
+    return {
+        x: Math.round(distance * Math.sin(direction) * 100)/100,
+        y: Math.round(0 - (distance * Math.cos(direction)) * 100)/100
+    }
+}
 class Ball {
     constructor(name="player", radius, initX, initY, initDx, initDy, color, mass) {
         this.name = name;
@@ -46,6 +53,7 @@ class Ball {
         this.downPressed = false;
         this.rightPressed = false;
         this.leftPressed = false;
+        this.angle = 0
         this.key = {
             up: 'i',
             down: 'k',
@@ -79,11 +87,14 @@ class Ball {
             dy: this.dy
         }
     }
+    updateAngle(dA) {
+        this.angle += dA;
+    }
 }
 let playerOneDetail = calcInit(weightClass.heavy)
 let playerTwoDetail = calcInit(weightClass.light)
 const playerOne = new Ball(`Dudung`, 10, 20, 20, playerOneDetail.dx, playerOneDetail.dy, "#0095DD", playerOneDetail.mass);
-const playerTwo = new Ball(`Maman`, 10, canvas.width-20, canvas.height-20, playerTwoDetail.dx, -playerTwoDetail.dy, "#05683F", playerTwoDetail.mass);
+const playerTwo = new Ball(`Maman`, 10, canvas.width-20, canvas.height-20, 0 - playerTwoDetail.dx, (0 - playerTwoDetail.dy), "#05683F", playerTwoDetail.mass);
 playerTwo.setKeys('w','s','a','d');
 
 
@@ -185,7 +196,15 @@ function drawBall(BallClass) {
     ctx.fillStyle = BallClass.color;
     ctx.fill();
     ctx.closePath();
-    ctx.fillText(BallClass.name, BallClass.x, BallClass.y + BallClass.radius + 5);
+    ctx.fillText(BallClass.name, BallClass.x - 17, BallClass.y + BallClass.radius + 8);
+    ctx.beginPath();
+    // ctx.moveTo(BallClass.x,BallClass.y)
+    let target = moveAngle(BallClass.angle,BallClass.radius);
+    let target2 = moveAngle((BallClass.angle + Math.PI),BallClass.radius);
+    ctx.moveTo(BallClass.x + target.x, BallClass.y + target.y);
+    ctx.lineTo(BallClass.x + target2.x, BallClass.y + target2.y);
+    ctx.stroke();
+    ctx.closePath();
 }
 
 function drawPaddle(paddleHeight, paddleWidth, paddleX, paddleY) {
@@ -311,6 +330,9 @@ function mainGame() {
 
     playerOne.updatePosition(playerOne.dx, playerOne.dy);
     playerTwo.updatePosition(playerTwo.dx, playerTwo.dy);
+
+    playerOne.updateAngle(0.1);
+    playerTwo.updateAngle(0.1);
 }
 
 let interval = setInterval(mainGame, 20);
