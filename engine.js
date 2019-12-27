@@ -16,7 +16,7 @@ const paddleHeightX = canvas.height/2;
 const paddleYX = canvas.height/4;
 
 class Ball {
-    constructor(name="player", radius, initX, initY, initDx, initDy, color, mass) {
+    constructor(name="player", radius, initX, initY, initDx, initDy, color, mass, nyawa) {
         this.name = name;
         this.radius = radius;
         this.x = initX;
@@ -25,6 +25,7 @@ class Ball {
         this.dy = initDy;
         this.color = color;
         this.mass = mass;
+        this.nyawa = nyawa;
         this.upPressed = false;
         this.downPressed = false;
         this.rightPressed = false;
@@ -57,8 +58,8 @@ class Ball {
         }
     }
 }
-const playerOne = new Ball(`Dudung`, 10, 20, 20, 5, 2, "#0095DD", 1);
-const playerTwo = new Ball(`Maman`, 10, canvas.width-20, canvas.height-20, 2, 2, "#05683F", 1.2);
+const playerOne = new Ball(`Dudung`, 10, 20, 20, 5, 2, "#0095DD", 1, 15);
+const playerTwo = new Ball(`Maman`, 10, canvas.width-20, canvas.height-20, 2, 2, "#05683F", 1.2, 14);
 playerTwo.setKeys('w','s','a','d');
 
 
@@ -242,6 +243,22 @@ function ballCollision(BallOne, BallTwo) {
     }
 }
 
+function showNyawa(BallClass) {
+    let nyawa = BallClass.nyawa;
+    let player = BallClass.name;
+    let nyawaBiru = document.getElementById("nyawaBiru");
+    let nyawaHijau = document.getElementById("nyawaHijau");
+    let player1 = document.getElementById("player1");
+    let player2 = document.getElementById("player2");
+    if (BallClass === playerOne) {
+        player1.innerHTML = player;
+        nyawaBiru.innerHTML = nyawa;
+    } else {
+        player2.innerHTML = player;
+        nyawaHijau.innerHTML = nyawa;
+    }
+}
+
 function mainGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBall(playerOne);
@@ -250,6 +267,8 @@ function mainGame() {
     drawPaddle(paddleHeight, paddleWidth, paddleX, paddleY2);
     drawPaddle(paddleHeightX, paddleWidthX, paddleXX, paddleYX);
     drawPaddle(paddleHeightX, paddleWidthX, paddleXX2, paddleYX);
+    showNyawa(playerOne);
+    showNyawa(playerTwo);
 
     let varControlOne = control(playerOne);
     let varControlTwo = control(playerTwo);
