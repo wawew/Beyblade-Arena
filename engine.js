@@ -3,17 +3,22 @@ let ctx = canvas.getContext("2d");
 let x = canvas.width/2;
 let y = canvas.height-30;
 
-const paddleHeight = 10;
-const paddleWidth = canvas.width/2;
-const paddleX = (canvas.width-paddleWidth) / 2;
-const paddleY = canvas.height/8;
-const paddleY2 = (canvas.height*7)/8-10;
-
-const paddleXX = canvas.width/8;
-const paddleXX2 = canvas.width*7/8-10;
-const paddleWidthX = 10;
-const paddleHeightX = canvas.height/2;
-const paddleYX = canvas.height/4;
+const paddleHeightHorz = 10;
+const paddleWidthHorz = canvas.width/2;
+const paddleWidthVert = 10;
+const paddleHeightVert = canvas.height/2;
+// upper paddle
+const paddleUpX = (canvas.width-paddleWidthHorz)/2;
+const paddleUpY = canvas.height/8;
+// lower paddle
+const paddleLowX = paddleUpX;
+const paddleLowY = (canvas.height*7)/8-10;
+// left paddle
+const paddleLeftX = canvas.width/8;
+const paddleLeftY = (canvas.height-paddleHeightVert)/2;
+// right paddle
+const paddleRightX = canvas.width*7/8-10;
+const paddleRightY = paddleLeftY;
 
 const weightClass = {
     heavy: 1.2,
@@ -55,10 +60,21 @@ class Ball {
         this.leftPressed = false;
         this.angle = 0
         this.key = {
-            up: 'i',
-            down: 'k',
-            left: 'j',
-            right: 'l'
+            up: 'w',
+            down: 's',
+            left: 'a',
+            right: 'd'
+        };
+        this.health = 10;
+    }
+    updateHealth(hp) {
+        this.health += hp;
+    }
+    checkLose() {
+        if (this.health <= 0) {
+            alert(`GAME OVER\n${this.name} Lose!`);
+            document.location.reload();
+            clearInterval(interval);
         }
     }
     setSpeed(dx, dy) {
@@ -91,11 +107,12 @@ class Ball {
         this.angle += dA;
     }
 }
+
 let playerOneDetail = calcInit(weightClass.heavy)
 let playerTwoDetail = calcInit(weightClass.light)
 const playerOne = new Ball(`Dudung`, 10, 20, 20, playerOneDetail.dx, playerOneDetail.dy, "#0095DD", playerOneDetail.mass);
 const playerTwo = new Ball(`Maman`, 10, canvas.width-20, canvas.height-20, 0 - playerTwoDetail.dx, (0 - playerTwoDetail.dy), "#05683F", playerTwoDetail.mass);
-playerTwo.setKeys('w','s','a','d');
+playerTwo.setKeys('i','k','j','l');
 
 
 document.addEventListener("keydown", keyDownHandlerOne, false);
@@ -192,11 +209,11 @@ function capFunction(initSpeed, nowSpeed) {
 
 function drawBall(BallClass,design) {
     ctx.beginPath();
-    ctx.arc(BallClass.x, BallClass.y, BallClass.radius, 0, Math.PI*2);
-    ctx.fillStyle = BallClass.color;
+    ctx.arc(ballObject.x, ballObject.y, ballObject.radius, 0, Math.PI*2);
+    ctx.fillStyle = ballObject.color;
     ctx.fill();
     ctx.closePath();
-    ctx.fillText(BallClass.name, BallClass.x - 17, BallClass.y + BallClass.radius + 8);
+    ctx.fillText(ballObject.name, ballObject.x - 17, ballObject.y + ballObject.radius + 8);
     ctx.beginPath();
     // ctx.moveTo(BallClass.x,BallClass.y)
     let target = moveAngle(BallClass.angle,BallClass.radius);
@@ -231,50 +248,39 @@ function drawBall(BallClass,design) {
     ctx.closePath();
 }
 
-function drawPaddle(paddleHeight, paddleWidth, paddleX, paddleY) {
+function drawPaddle(paddleUpX, paddleUpY, paddleHeight, paddleWidth) {
     ctx.beginPath();
-    ctx.rect(paddleX, (canvas.height-paddleY)-paddleHeight, paddleWidth, paddleHeight);
+    ctx.rect(paddleUpX, paddleUpY, paddleWidth, paddleHeight);
     ctx.fillStyle = "#0095DD";
     ctx.fill();
     ctx.closePath();
 }
 
-function wallDetection(BallClass) {
-    const damping = 0.98;
-    let dx = BallClass.dx;
-    let dy = BallClass.dy;
-    let x = BallClass.x;
-    let y = BallClass.y;
+function wallDetection(ballObject) {
+    let dx = ballObject.dx;
+    let dy = ballObject.dy;
+    let x = ballObject.x;
+    let y = ballObject.y;
 
-    if(y >= (canvas.height-paddleY)-paddleHeight) {
-        if(x >= paddleX && x <= paddleX + paddleWidth) {
-            dy = -dy;
-        }
+    if (x+dx >= paddleLeftX && x+dx <= paddleLeftX+paddleWidthVert && y+dy >= paddleLeftY && y+dy <= paddleLeftY+paddleHeightVert) {
+        dx = -dx;
+        ballObject.updateHealth(-1);
+    } else if (x+dx >= paddleRightX && x+dx <= paddleRightX+paddleWidthVert && y+dy >= paddleRightY && y+dy <= paddleRightY+paddleHeightVert) {
+        dx = -dx;
+        ballObject.updateHealth(-1);
+    } else if (x+dx >= paddleUpX && x+dx <= paddleUpX+paddleWidthHorz && y+dy >= paddleUpY && y+dy <= paddleUpY+paddleHeightHorz) {
+        dy = -dy;
+        ballObject.updateHealth(-1);
+    } else if (x+dx >= paddleLowX && x+dx <= paddleLowX+paddleWidthHorz && y+dy >= paddleLowY && y+dy <= paddleLowY+paddleHeightHorz) {
+        dy = -dy;
+        ballObject.updateHealth(-1);
     }
 
-    if(y <= canvas.height-paddleY2) {
-        if(x >= paddleX && x <= paddleX + paddleWidth) {
-            dy = -dy;
-        }
-    }
-
-    if(x >= paddleXX+paddleWidthX) {
-        if (y > paddleYX && y < (paddleYX+paddleHeightX)) {
-            dx = -dx;
-        }
-    }
-
-    if(x <= paddleXX2) {
-        if (y > paddleYX && y < (paddleYX+paddleHeightX)) {
-            dx = -dx;
-        }
-    }
-
-    if(y > canvas.height-BallClass.radius || y < BallClass.radius) {
+    if(y > canvas.height-ballObject.radius || y < ballObject.radius) {
         dy = -dy;
     }
     
-    if(x > canvas.width-BallClass.radius || x < BallClass.radius) {
+    if(x > canvas.width-ballObject.radius || x < ballObject.radius) {
         dx = -dx;
     }
 
@@ -284,32 +290,22 @@ function wallDetection(BallClass) {
     }
 }
 
-function ballCollision(BallOne, BallTwo) {
-    const deltaX = Math.abs(BallOne.x - BallTwo.x);
-    const deltaY = Math.abs(BallOne.y - BallTwo.y);
+function ballCollision(ballOne, ballTwo) {
+    const deltaX = Math.abs(ballOne.x - ballTwo.x);
+    const deltaY = Math.abs(ballOne.y - ballTwo.y);
     const gap = Math.sqrt(deltaX**2 + deltaY**2);
     
-    const damping = 0.98;
-    const sumSpeedX = BallOne.dx + BallTwo.dx;
-    const sumSpeedY = BallOne.dy + BallTwo.dy;
-    const deltaSpeedX = BallOne.dx - BallTwo.dx;
-    const deltaSpeedY = BallOne.dy - BallTwo.dy;
-    let afterSpeedOneX = BallOne.dx
-    let afterSpeedOneY = BallOne.dy;
-    let afterSpeedTwoX = BallTwo.dx
-    let afterSpeedTwoY = BallTwo.dy;
+    let afterSpeedOneX = ballOne.dx
+    let afterSpeedOneY = ballOne.dy;
+    let afterSpeedTwoX = ballTwo.dx
+    let afterSpeedTwoY = ballTwo.dy;
     
-    if(gap <= BallOne.radius+BallTwo.radius) {
-        afterSpeedOneX = (BallOne.dx * (BallOne.mass-BallTwo.mass) + (2*BallTwo.mass*BallTwo.dx)) / (BallOne.mass+BallTwo.mass);
-        afterSpeedOneY = (BallOne.dy * (BallOne.mass-BallTwo.mass) + (2*BallTwo.mass*BallTwo.dy)) / (BallOne.mass+BallTwo.mass);
-        afterSpeedTwoX = (BallTwo.dx * (BallTwo.mass-BallOne.mass) + (2*BallOne.mass*BallOne.dx)) / (BallOne.mass+BallTwo.mass);
-        afterSpeedTwoY = (BallTwo.dy * (BallTwo.mass-BallOne.mass) + (2*BallOne.mass*BallOne.dy)) / (BallOne.mass+BallTwo.mass);
-        
-        // afterSpeedOneX = damping*deltaSpeedX/2 + sumSpeedX/2;
-        // afterSpeedOneY = damping*deltaSpeedY/2 + sumSpeedY/2;
-        // afterSpeedTwoX = sumSpeedX/2 - damping*deltaSpeedX/2;
-        // afterSpeedTwoY = sumSpeedX/2 - damping*deltaSpeedY/2;
-        // console.log("TABRAKAN");
+    if(gap <= ballOne.radius+ballTwo.radius) {
+        afterSpeedOneX = (ballOne.dx*(ballOne.mass-ballTwo.mass) + (2*ballTwo.mass*ballTwo.dx)) / (ballOne.mass+ballTwo.mass);
+        afterSpeedOneY = (ballOne.dy*(ballOne.mass-ballTwo.mass) + (2*ballTwo.mass*ballTwo.dy)) / (ballOne.mass+ballTwo.mass);
+        afterSpeedTwoX = (ballTwo.dx*(ballTwo.mass-ballOne.mass) + (2*ballOne.mass*ballOne.dx)) / (ballOne.mass+ballTwo.mass);
+        afterSpeedTwoY = (ballTwo.dy*(ballTwo.mass-ballOne.mass) + (2*ballOne.mass*ballOne.dy)) / (ballOne.mass+ballTwo.mass);
+        console.log("TABRAKAN");
     }
     
     return {
@@ -320,14 +316,54 @@ function ballCollision(BallOne, BallTwo) {
     }
 }
 
+// function boundaryDetection(ballObject) {
+//     let dx = ballObject.dx;
+//     let dy = ballObject.dy;
+//     let x = ballObject.x;
+//     let y = ballObject.y;
+
+//     if (x+dx <= paddleLeftX || x+dx <= paddleLeftX+paddleUpX && y+dy >= paddleUpY && y+dy <= paddleUpY+paddleHeightHorz) {
+//         dy = -dy;
+//         ballObject.updateHealth(-100000);
+//     } else if (x+dx > paddleUpX && x+dx < paddleUpX+paddleWidthHorz && y+dy > paddleLowY && y+dy < paddleLowY+paddleHeightHorz) {
+//         dy = -dy;
+//         ballObject.updateHealth(100000);
+//     } else if (x+dx > paddleLeftX && x+dx < paddleLeftX+paddleWidthVert && y+dy > paddleLeftY && y+dy < paddleLeftY+paddleHeightVert) {
+//         dx = -dx;
+//         ballObject.updateHealth(100000);
+//     } else if (x+dx > paddleRightX && x+dx < paddleRightX+paddleWidthVert && y+dy > paddleLeftY && y+dy < paddleLeftY+paddleHeightVert) {
+//         dx = -dx;
+//         ballObject.updateHealth(100000);
+//     }
+// }
+
+function showNyawa(BallClass) {
+    let nyawa = BallClass.health;
+    let player = BallClass.name;
+    let nyawaBiru = document.getElementById("nyawaBiru");
+    let nyawaHijau = document.getElementById("nyawaHijau");
+    let player1 = document.getElementById("player1");
+    let player2 = document.getElementById("player2");
+    if (BallClass === playerOne) {
+        player1.innerHTML = player;
+        nyawaBiru.innerHTML = nyawa;
+    } else {
+        player2.innerHTML = player;
+        nyawaHijau.innerHTML = nyawa;
+    }
+}
+
 function mainGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBall(playerOne,'z');
     drawBall(playerTwo,'+');
-    drawPaddle(paddleHeight, paddleWidth, paddleX, paddleY);
-    drawPaddle(paddleHeight, paddleWidth, paddleX, paddleY2);
-    drawPaddle(paddleHeightX, paddleWidthX, paddleXX, paddleYX);
-    drawPaddle(paddleHeightX, paddleWidthX, paddleXX2, paddleYX);
+    
+    drawPaddle(paddleUpX, paddleUpY, paddleHeightHorz, paddleWidthHorz);
+    drawPaddle(paddleLowX, paddleLowY, paddleHeightHorz, paddleWidthHorz);
+    drawPaddle(paddleLeftX, paddleLeftY, paddleHeightVert, paddleWidthVert);
+    drawPaddle(paddleRightX, paddleRightY, paddleHeightVert, paddleWidthVert);
+    showNyawa(playerOne);
+    showNyawa(playerTwo);
 
     let oneSpeed = playerOne.getSpeed();
     let twoSpeed = playerTwo.getSpeed();
@@ -357,6 +393,9 @@ function mainGame() {
 
     playerOne.updateAngle(0.1);
     playerTwo.updateAngle(0.1);
+
+    playerOne.checkLose();
+    playerTwo.checkLose();
 }
 
 let interval = setInterval(mainGame, 20);
