@@ -65,7 +65,7 @@ class Ball {
             left: 'a',
             right: 'd'
         };
-        this.health = 10;
+        this.health = 15;
     }
     updateHealth(hp) {
         this.health += hp;
@@ -282,6 +282,9 @@ function ballCollision(ballOne, ballTwo) {
         afterSpeedTwoX = (ballTwo.dx*(ballTwo.mass-ballOne.mass) + (2*ballOne.mass*ballOne.dx)) / (ballOne.mass+ballTwo.mass);
         afterSpeedTwoY = (ballTwo.dy*(ballTwo.mass-ballOne.mass) + (2*ballOne.mass*ballOne.dy)) / (ballOne.mass+ballTwo.mass);
         console.log("TABRAKAN");
+        // calculate impact point between two bois
+        let impactX = (ballOne.x*ballTwo.radius + ballTwo.x*ballOne.radius) / (ballOne.radius + ballTwo.radius);
+        let impactY = (ballOne.y*ballTwo.radius + ballTwo.y*ballOne.radius) / (ballOne.radius + ballTwo.radius);
     }
     
     return {
