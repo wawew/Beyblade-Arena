@@ -69,8 +69,13 @@ class Ball {
         let initMomentum = 5;
         let initSpeed = initMomentum/this.mass;
         let initSpeedDir = Math.round((initSpeed / 2) * Math.sqrt(2) * 100 )/ 100;
-        this.dx = initSpeedDir;
-        this.dy = initSpeedDir;
+        if (this.x > canvas.width/2) {
+            this.dx = -initSpeedDir;
+            this.dy = -initSpeedDir;
+        } else {
+            this.dx = initSpeedDir;
+            this.dy = initSpeedDir;
+        }
     }
     updateHealth(hp) {
         this.health += hp;
@@ -86,9 +91,15 @@ class Ball {
         this.dx = dx;
         this.dy = dy;
     }
-    updateSpeed(dx, dy) {
-        this.dx += dx;
-        this.dy += dy;
+    getLoc() {
+        return {
+            x: this.x,
+            y: this.y
+        }
+    }   
+    updateSpeed(ax, ay) {
+        this.dx += ax;
+        this.dy += ay;
     }
     updatePosition(dx, dy) {
         this.x += dx;
@@ -318,6 +329,26 @@ function ballCollision(ballOne, ballTwo) {
     }
 }
 
+
+function getCentrify(loc) {
+    let ax=0;
+    let ay=0;
+    if (loc.x > canvas.width/2) {
+        ax=-0.05;
+    } else if (loc.x < canvas.width/2) {
+        ax=0.05;
+    }
+    if (loc.y > canvas.height/2) {
+        ay=-0.05;
+    } else if (loc.y < canvas.height/2) {
+        ay=0.05;
+    }
+    return {
+        ax: ax,
+        ay: ay
+    }
+}
+
 function showNyawa(ballObject) {
     let nyawa = ballObject.health;
     let player = ballObject.name;
@@ -392,6 +423,12 @@ function mainGame() {
 
     playerOne.updatePosition(playerOne.dx, playerOne.dy);
     playerTwo.updatePosition(playerTwo.dx, playerTwo.dy);
+
+    let lokasi = { satu: playerOne.getLoc(), dua: playerTwo.getLoc() };
+    let accelAll = { aSatu: getCentrify(lokasi.satu), aDua: getCentrify(lokasi.dua)}
+
+    playerOne.updateSpeed(accelAll.aSatu.ax,accelAll.aSatu.ay);
+    playerTwo.updateSpeed(accelAll.aDua.ax,accelAll.aDua.ay);
 
     playerOne.updateAngle(0.1);
     playerTwo.updateAngle(0.1);
