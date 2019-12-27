@@ -30,16 +30,15 @@ class Ball {
         this.dy = initDy;
         this.color = color;
         this.mass = mass;
-        this.nyawa = nyawa;
         this.upPressed = false;
         this.downPressed = false;
         this.rightPressed = false;
         this.leftPressed = false;
         this.key = {
-            up: 'i',
-            down: 'k',
-            left: 'j',
-            right: 'l'
+            up: 'w',
+            down: 's',
+            left: 'a',
+            right: 'd'
         };
         this.health = 10;
     }
@@ -76,7 +75,7 @@ class Ball {
 }
 const playerOne = new Ball(`Dudung`, 10, paddleUpX, paddleLeftY, 5, 2, "#0095DD", 1);
 const playerTwo = new Ball(`Maman`, 10, paddleLowX+paddleWidthHorz, paddleRightY, -2, 2, "#05683F", 1.2);
-playerTwo.setKeys('w','s','a','d');
+playerTwo.setKeys('i','k','j','l');
 
 
 document.addEventListener("keydown", keyDownHandlerOne, false);
