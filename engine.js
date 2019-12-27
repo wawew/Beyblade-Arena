@@ -207,7 +207,7 @@ function capFunction(initSpeed, nowSpeed) {
     }
 }
 
-function drawBall(ballObject) {
+function drawBall(ballObject,design) {
     ctx.beginPath();
     ctx.arc(ballObject.x, ballObject.y, ballObject.radius, 0, Math.PI*2);
     ctx.fillStyle = ballObject.color;
@@ -215,12 +215,36 @@ function drawBall(ballObject) {
     ctx.closePath();
     ctx.fillText(ballObject.name, ballObject.x - 17, ballObject.y + ballObject.radius + 8);
     ctx.beginPath();
-    // ctx.moveTo(BallClass.x,BallClass.y)
+    // ctx.moveTo(ballObject.x,ballObject.y)
     let target = moveAngle(ballObject.angle,ballObject.radius);
     let target2 = moveAngle((ballObject.angle + Math.PI),ballObject.radius);
-    ctx.moveTo(ballObject.x + target.x, ballObject.y + target.y);
-    ctx.lineTo(ballObject.x + target2.x, ballObject.y + target2.y);
-    ctx.stroke();
+    let target3 = moveAngle(ballObject.angle + (Math.PI/2),ballObject.radius);
+    let target4 = moveAngle(ballObject.angle - (Math.PI/2),ballObject.radius);
+    if (design == '//') {
+        ctx.moveTo(ballObject.x + target.x, ballObject.y + target.y);
+        ctx.lineTo(ballObject.x + target3.x, ballObject.y + target3.y);
+        ctx.stroke();
+        ctx.moveTo(ballObject.x + target4.x, ballObject.y + target4.y);
+        ctx.lineTo(ballObject.x + target2.x, ballObject.y + target2.y);
+        ctx.stroke();
+    } else if (design == 'z') {
+        ctx.moveTo(ballObject.x + target.x, ballObject.y + target.y);
+        ctx.lineTo(ballObject.x + target3.x, ballObject.y + target3.y);
+        ctx.stroke();
+        ctx.moveTo(ballObject.x + target4.x, ballObject.y + target4.y);
+        ctx.lineTo(ballObject.x + target2.x, ballObject.y + target2.y);
+        ctx.stroke();
+        ctx.moveTo(ballObject.x + target.x, ballObject.y + target.y);
+        ctx.lineTo(ballObject.x + target2.x, ballObject.y + target2.y);
+        ctx.stroke();
+    }else if (design == '+') {
+        ctx.moveTo(ballObject.x + target.x, ballObject.y + target.y);
+        ctx.lineTo(ballObject.x + target2.x, ballObject.y + target2.y);
+        ctx.stroke();
+        ctx.moveTo(ballObject.x + target3.x, ballObject.y + target3.y);
+        ctx.lineTo(ballObject.x + target4.x, ballObject.y + target4.y);
+        ctx.stroke();
+    }
     ctx.closePath();
 }
 
@@ -313,14 +337,14 @@ function ballCollision(ballOne, ballTwo) {
 //     }
 // }
 
-function showNyawa(BallClass) {
-    let nyawa = BallClass.health;
-    let player = BallClass.name;
+function showNyawa(ballObject) {
+    let nyawa = ballObject.health;
+    let player = ballObject.name;
     let nyawaBiru = document.getElementById("nyawaBiru");
     let nyawaHijau = document.getElementById("nyawaHijau");
     let player1 = document.getElementById("player1");
     let player2 = document.getElementById("player2");
-    if (BallClass === playerOne) {
+    if (ballObject === playerOne) {
         player1.innerHTML = player;
         nyawaBiru.innerHTML = nyawa;
     } else {
@@ -331,8 +355,9 @@ function showNyawa(BallClass) {
 
 function mainGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawBall(playerOne);
-    drawBall(playerTwo);
+    drawBall(playerOne,'z');
+    drawBall(playerTwo,'+');
+    
     drawPaddle(paddleUpX, paddleUpY, paddleHeightHorz, paddleWidthHorz);
     drawPaddle(paddleLowX, paddleLowY, paddleHeightHorz, paddleWidthHorz);
     drawPaddle(paddleLeftX, paddleLeftY, paddleHeightVert, paddleWidthVert);
@@ -369,7 +394,7 @@ function mainGame() {
     playerOne.updateAngle(0.1);
     playerTwo.updateAngle(0.1);
 
-  playerOne.checkLose();
+    playerOne.checkLose();
     playerTwo.checkLose();
 }
 
