@@ -20,6 +20,30 @@ const paddleLeftY = (canvas.height-paddleHeightVert)/2;
 const paddleRightX = canvas.width*7/8-10;
 const paddleRightY = paddleLeftY;
 
+const weightClass = {
+    heavy: 1.2,
+    middle: 1,
+    light: 0.8
+}
+
+const calcInit = (mass) => {
+    let initMomentum = 5;
+    let initSpeed = initMomentum/mass
+    let initSpeedDir = Math.round((initSpeed / 2) * Math.sqrt(2) * 100 )/ 100
+    console.log(initSpeedDir)
+    return {
+        mass: mass,
+        dx: initSpeedDir,
+        dy: initSpeedDir
+    }
+}
+
+const moveAngle = (direction,distance) => {
+    return {
+        x: Math.round(distance * Math.sin(direction) * 100)/100,
+        y: Math.round(0 - (distance * Math.cos(direction)) * 100)/100
+    }
+}
 class Ball {
     constructor(name="player", radius, initX, initY, initDx, initDy, color, mass) {
         this.name = name;
@@ -34,6 +58,7 @@ class Ball {
         this.downPressed = false;
         this.rightPressed = false;
         this.leftPressed = false;
+        this.angle = 0
         this.key = {
             up: 'w',
             down: 's',
@@ -72,9 +97,21 @@ class Ball {
             right: right
         }
     }
+    getSpeed() {
+        return {
+            dx: this.dx,
+            dy: this.dy
+        }
+    }
+    updateAngle(dA) {
+        this.angle += dA;
+    }
 }
-const playerOne = new Ball(`Dudung`, 10, paddleUpX, paddleLeftY, 5, 2, "#0095DD", 1);
-const playerTwo = new Ball(`Maman`, 10, paddleLowX+paddleWidthHorz, paddleRightY, -2, 2, "#05683F", 1.2);
+
+let playerOneDetail = calcInit(weightClass.heavy)
+let playerTwoDetail = calcInit(weightClass.light)
+const playerOne = new Ball(`Dudung`, 10, 20, 20, playerOneDetail.dx, playerOneDetail.dy, "#0095DD", playerOneDetail.mass);
+const playerTwo = new Ball(`Maman`, 10, canvas.width-20, canvas.height-20, 0 - playerTwoDetail.dx, (0 - playerTwoDetail.dy), "#05683F", playerTwoDetail.mass);
 playerTwo.setKeys('i','k','j','l');
 
 
@@ -161,11 +198,29 @@ function control(ballObj) {
     }
 }
 
+function capFunction(initSpeed, nowSpeed) {
+    let radSpeed = Math.sqrt( (nowSpeed.dx ** 2) + (nowSpeed.dy ** 2) )
+    if (radSpeed > 10) {
+        return initSpeed
+    } else {
+        return nowSpeed
+    }
+}
+
 function drawBall(ballObject) {
     ctx.beginPath();
     ctx.arc(ballObject.x, ballObject.y, ballObject.radius, 0, Math.PI*2);
     ctx.fillStyle = ballObject.color;
     ctx.fill();
+    ctx.closePath();
+    ctx.fillText(ballObject.name, ballObject.x - 17, ballObject.y + ballObject.radius + 8);
+    ctx.beginPath();
+    // ctx.moveTo(BallClass.x,BallClass.y)
+    let target = moveAngle(ballObject.angle,ballObject.radius);
+    let target2 = moveAngle((ballObject.angle + Math.PI),ballObject.radius);
+    ctx.moveTo(ballObject.x + target.x, ballObject.y + target.y);
+    ctx.lineTo(ballObject.x + target2.x, ballObject.y + target2.y);
+    ctx.stroke();
     ctx.closePath();
 }
 
@@ -285,11 +340,20 @@ function mainGame() {
     showNyawa(playerOne);
     showNyawa(playerTwo);
 
+    let oneSpeed = playerOne.getSpeed();
+    let twoSpeed = playerTwo.getSpeed();
     let varControlOne = control(playerOne);
     let varControlTwo = control(playerTwo);
     playerOne.setSpeed(varControlOne.resXSpeed, varControlOne.resYSpeed);
     playerTwo.setSpeed(varControlTwo.resXSpeed, varControlTwo.resYSpeed);
-    
+    let oneSpeedNow = playerOne.getSpeed();
+    let twoSpeedNow = playerTwo.getSpeed();
+
+    let speedCapOne = capFunction(oneSpeed,oneSpeedNow);
+    let speedCapTwo = capFunction(twoSpeed,twoSpeedNow);
+    playerOne.setSpeed(speedCapOne.dx, speedCapOne.dy);
+    playerTwo.setSpeed(speedCapTwo.dx, speedCapTwo.dy);
+
     let collision = ballCollision(playerOne, playerTwo);
     playerOne.setSpeed(collision.updatedSpeedOneX, collision.updatedSpeedOneY);
     playerTwo.setSpeed(collision.updatedSpeedTwoX, collision.updatedSpeedTwoY);
@@ -302,7 +366,10 @@ function mainGame() {
     playerOne.updatePosition(playerOne.dx, playerOne.dy);
     playerTwo.updatePosition(playerTwo.dx, playerTwo.dy);
 
-    playerOne.checkLose();
+    playerOne.updateAngle(0.1);
+    playerTwo.updateAngle(0.1);
+
+  playerOne.checkLose();
     playerTwo.checkLose();
 }
 
