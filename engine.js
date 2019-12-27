@@ -3,6 +3,9 @@ let ctx = canvas.getContext("2d");
 let x = canvas.width/2;
 let y = canvas.height-30;
 
+// backsound
+let backSound = document.getElementById("backsound")
+
 const paddleHeightHorz = 10;
 const paddleWidthHorz = canvas.width/2;
 const paddleWidthVert = 10;
@@ -120,7 +123,6 @@ class Ball {
         this.angle += dA;
     }
 }
-
 const playerOne = new Ball(`Dudung`, 10, 20, 20, "#0095DD", 'z');
 const playerTwo = new Ball(`Maman`, 10, canvas.width-20, canvas.height-20, "#05683F", '+');
 playerTwo.setKeys('i','k','j','l');
@@ -327,6 +329,7 @@ function ballCollision(ballOne, ballTwo) {
     }
 }
 
+
 function getCentrify(loc) {
     let ax=0;
     let ay=0;
@@ -345,26 +348,6 @@ function getCentrify(loc) {
         ay: ay
     }
 }
-// function boundaryDetection(ballObject) {
-//     let dx = ballObject.dx;
-//     let dy = ballObject.dy;
-//     let x = ballObject.x;
-//     let y = ballObject.y;
-
-//     if (x+dx <= paddleLeftX || x+dx <= paddleLeftX+paddleUpX && y+dy >= paddleUpY && y+dy <= paddleUpY+paddleHeightHorz) {
-//         dy = -dy;
-//         ballObject.updateHealth(-100000);
-//     } else if (x+dx > paddleUpX && x+dx < paddleUpX+paddleWidthHorz && y+dy > paddleLowY && y+dy < paddleLowY+paddleHeightHorz) {
-//         dy = -dy;
-//         ballObject.updateHealth(100000);
-//     } else if (x+dx > paddleLeftX && x+dx < paddleLeftX+paddleWidthVert && y+dy > paddleLeftY && y+dy < paddleLeftY+paddleHeightVert) {
-//         dx = -dx;
-//         ballObject.updateHealth(100000);
-//     } else if (x+dx > paddleRightX && x+dx < paddleRightX+paddleWidthVert && y+dy > paddleLeftY && y+dy < paddleLeftY+paddleHeightVert) {
-//         dx = -dx;
-//         ballObject.updateHealth(100000);
-//     }
-// }
 
 function showNyawa(ballObject) {
     let nyawa = ballObject.health;
@@ -382,6 +365,24 @@ function showNyawa(ballObject) {
     }
 }
 
+function showStatus(BallClass) {
+    let dx = BallClass.dx;
+    let dy = BallClass.dy;
+    let massa = BallClass.mass;
+    let speed = Math.round((Math.sqrt(dx**2 + dy**2))*100)/100;
+    let speedStatus1 = document.getElementById("speed1");
+    let speedStatus2 = document.getElementById("speed2");
+    let massaStatus1 = document.getElementById("massa1");
+    let massaStatus2 = document.getElementById("massa2");
+    if (BallClass === playerOne) {
+        speedStatus1.innerHTML = `Speed : ${speed}`;
+        massaStatus1.innerHTML = `Mass : ${massa}`;
+    } else {
+        speedStatus2.innerHTML = `Speed : ${speed}`;
+        massaStatus2.innerHTML = `Mass : ${massa}`;
+    }
+}
+
 function mainGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBall(playerOne,'z');
@@ -393,6 +394,9 @@ function mainGame() {
     drawPaddle(paddleRightX, paddleRightY, paddleHeightVert, paddleWidthVert);
     showNyawa(playerOne);
     showNyawa(playerTwo);
+    showStatus(playerOne);
+    showStatus(playerTwo);
+    backSound.play()
 
     let oneSpeed = playerOne.getSpeed();
     let twoSpeed = playerTwo.getSpeed();
