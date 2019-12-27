@@ -30,6 +30,7 @@ class Ball {
         this.dy = initDy;
         this.color = color;
         this.mass = mass;
+        this.nyawa = nyawa;
         this.upPressed = false;
         this.downPressed = false;
         this.rightPressed = false;
@@ -258,6 +259,22 @@ function ballCollision(ballOne, ballTwo) {
 //     }
 // }
 
+function showNyawa(BallClass) {
+    let nyawa = BallClass.health;
+    let player = BallClass.name;
+    let nyawaBiru = document.getElementById("nyawaBiru");
+    let nyawaHijau = document.getElementById("nyawaHijau");
+    let player1 = document.getElementById("player1");
+    let player2 = document.getElementById("player2");
+    if (BallClass === playerOne) {
+        player1.innerHTML = player;
+        nyawaBiru.innerHTML = nyawa;
+    } else {
+        player2.innerHTML = player;
+        nyawaHijau.innerHTML = nyawa;
+    }
+}
+
 function mainGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBall(playerOne);
@@ -266,6 +283,8 @@ function mainGame() {
     drawPaddle(paddleLowX, paddleLowY, paddleHeightHorz, paddleWidthHorz);
     drawPaddle(paddleLeftX, paddleLeftY, paddleHeightVert, paddleWidthVert);
     drawPaddle(paddleRightX, paddleRightY, paddleHeightVert, paddleWidthVert);
+    showNyawa(playerOne);
+    showNyawa(playerTwo);
 
     let varControlOne = control(playerOne);
     let varControlTwo = control(playerTwo);
