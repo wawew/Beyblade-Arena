@@ -30,7 +30,6 @@ const calcInit = (mass) => {
     let initMomentum = 5;
     let initSpeed = initMomentum/mass
     let initSpeedDir = Math.round((initSpeed / 2) * Math.sqrt(2) * 100 )/ 100
-    console.log(initSpeedDir)
     return {
         mass: mass,
         dx: initSpeedDir,
@@ -266,6 +265,13 @@ function wallDetection(ballObject) {
     }
 }
 
+function insertSpark(impactX, impactY) {
+    const sparkImg = new Image();
+    sparkImg.src = "./assets/img/spark.png";
+    ctx.drawImage(sparkImg, impactX, impactY, 50, 50);
+    console.log("TABRAKAN");
+}
+
 function ballCollision(ballOne, ballTwo) {
     const deltaX = Math.abs(ballOne.x - ballTwo.x);
     const deltaY = Math.abs(ballOne.y - ballTwo.y);
@@ -277,14 +283,13 @@ function ballCollision(ballOne, ballTwo) {
     let afterSpeedTwoY = ballTwo.dy;
     
     if(gap <= ballOne.radius+ballTwo.radius) {
+        let impactX = (ballOne.x*ballTwo.radius + ballTwo.x*ballOne.radius) / (ballOne.radius + ballTwo.radius);
+        let impactY = (ballOne.y*ballTwo.radius + ballTwo.y*ballOne.radius) / (ballOne.radius + ballTwo.radius);
+        insertSpark(impactX, impactY);
         afterSpeedOneX = (ballOne.dx*(ballOne.mass-ballTwo.mass) + (2*ballTwo.mass*ballTwo.dx)) / (ballOne.mass+ballTwo.mass);
         afterSpeedOneY = (ballOne.dy*(ballOne.mass-ballTwo.mass) + (2*ballTwo.mass*ballTwo.dy)) / (ballOne.mass+ballTwo.mass);
         afterSpeedTwoX = (ballTwo.dx*(ballTwo.mass-ballOne.mass) + (2*ballOne.mass*ballOne.dx)) / (ballOne.mass+ballTwo.mass);
         afterSpeedTwoY = (ballTwo.dy*(ballTwo.mass-ballOne.mass) + (2*ballOne.mass*ballOne.dy)) / (ballOne.mass+ballTwo.mass);
-        console.log("TABRAKAN");
-        // calculate impact point between two bois
-        let impactX = (ballOne.x*ballTwo.radius + ballTwo.x*ballOne.radius) / (ballOne.radius + ballTwo.radius);
-        let impactY = (ballOne.y*ballTwo.radius + ballTwo.y*ballOne.radius) / (ballOne.radius + ballTwo.radius);
     }
     
     return {
